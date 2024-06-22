@@ -26,13 +26,7 @@
 #include <Library/EfiResetSystemLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
-#include <Library/LKEnvLib.h>
 #include <Library/IoLib.h>
-#include <Library/dload_util.h>
-#include <Library/QcomPm8x41Lib.h>
-
-#include <Platform/iomap.h>
-#include <Chipset/reboot.h>
 
 STATIC VOID shutdown_device(VOID)
 {

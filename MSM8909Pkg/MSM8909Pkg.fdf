@@ -25,7 +25,7 @@
 ################################################################################
 
 [FD.MSM8909PKG_UEFI]
-BaseAddress   = 0x80200000|gArmTokenSpaceGuid.PcdFdBaseAddress  # The base address of the Firmware in NOR Flash.
+BaseAddress   = 0x80000000|gArmTokenSpaceGuid.PcdFdBaseAddress  # The base address of the Firmware in NOR Flash.
 Size          = 0x00100000|gArmTokenSpaceGuid.PcdFdSize         # The size in bytes of the FLASH Device
 ErasePolarity = 1
 
@@ -100,7 +100,6 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
   INF MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
   INF EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
-  INF EmbeddedPkg/ResetRuntimeDxe/ResetRuntimeDxe.inf
   INF EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
 
@@ -135,18 +134,6 @@ READ_LOCK_STATUS   = TRUE
   INF MSM8909Pkg/Drivers/MSM8909PkgDxe/MSM8909PkgDxe.inf
   INF MSM8909Pkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
   INF MSM8909Pkg/Drivers/LogoDxe/LogoDxe.inf
-
-  # SoC Drivers (Cross-referenced from EFIDroid and Ben)
-  INF MSM8909Pkg/Drivers/BamDxe/BamDxe.inf
-  INF MSM8909Pkg/Drivers/GpioTlmmDxe/GpioTlmmDxe.inf
-  INF MSM8909Pkg/Drivers/GpioTlmmInterruptDxe/GpioTlmmInterruptDxe.inf
-  INF MSM8909Pkg/Drivers/SpmiDxe/SpmiDxe.inf
-  INF MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41Dxe.inf
-  INF MSM8909Pkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf
-  INF MSM8909Pkg/Drivers/KeypadDxe/KeypadDxe.inf
-  INF MSM8909Pkg/Drivers/ClockDxe/ClockDxe.inf
-  INF MSM8909Pkg/Drivers/SdhciMMCHSDxe/SdhciMMCHS.inf
-
 
   #
   # USB Host Support
@@ -192,21 +179,6 @@ READ_LOCK_STATUS   = TRUE
   #
   INF MSM8909Pkg/Drivers/SmbiosPlatformDxe/SmbiosPlatformDxe.inf
   INF MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
-
-  # ACPI Tables
-  FILE FREEFORM = 7E374E25-8E01-4FEE-87F2-390C23C606CD {
-    SECTION RAW = MSM8909Pkg/AcpiTables/CSRT.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/DBG2.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/DSDT.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/FACP.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/FACS.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/FPDT.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/GTDT.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/MADT.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/SSDT.aml
-    SECTION RAW = MSM8909Pkg/AcpiTables/TPM2.aml
-    SECTION UI = "AcpiTables"
-  }
 
   #
   # UEFI applications

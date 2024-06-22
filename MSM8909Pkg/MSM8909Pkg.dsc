@@ -25,7 +25,7 @@
   BUILD_TARGETS                  = DEBUG|RELEASE
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = MSM8909Pkg/MSM8909Pkg.fdf
-  DEFINE USE_SCREEN_FOR_SERIAL_OUTPUT = 0
+  DEFINE USE_SCREEN_FOR_SERIAL_OUTPUT = 1
 
 !include MSM8909Pkg/CommonDsc.dsc.inc
 
@@ -49,21 +49,6 @@
   UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
   PlatformBootManagerLib|ArmPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
   CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
-
-  # SoC Drivers
-  QTimerLib|MSM8909Pkg/Library/QTimerLib/QTimerLib.inf
-  InterruptsLib|MSM8909Pkg/Library/InterruptsLib/InterruptsLib.inf
-  MallocLib|MSM8909Pkg/Library/MallocLib/MallocLib.inf
-  KeypadDeviceHelperLib|MSM8909Pkg/Library/KeypadDeviceHelperLib/KeypadDeviceHelperLib.inf
-  KeypadDeviceImplLib|MSM8909Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf
-  DloadUtilLib|MSM8909Pkg/Library/DloadUtilLib/DloadUtilLib.inf
-  QcomPlatformClockInitLib|MSM8909Pkg/Library/QcomPlatformClockInitLib/QcomPlatformClockInitLib.inf
-  QcomPlatformMmcLib|MSM8909Pkg/Library/PlatformMmcLib/QcomPlatformMmcLib.inf
-  QcomPlatformMmcClockOverrideLib|MSM8909Pkg/Library/QcomPlatformMmcClockOverrideLib/QcomPlatformMmcClockOverrideLib.inf
-  QcomTargetMmcSdhciLib|MSM8909Pkg/Library/TargetMmcSdhciLib/QcomTargetMmcSdhciLib.inf
-  LcmLib|MSM8909Pkg/Library/LcmLib/LcmLib.inf
-  MicroLibC|MSM8909Pkg/Library/MicroLibC/MicroLibC.inf
-  StrLib|MSM8909Pkg/Library/StrLib/StrLib.inf
 
   # UiApp dependencies
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
@@ -105,9 +90,6 @@
   MemoryInitPeiLib|MSM8909Pkg/Library/MemoryInitPeiLib/PeiMemoryAllocationLib.inf
   PlatformPeiLib|MSM8909Pkg/Library/PlatformPeiLib/PlatformPeiLib.inf
 
-  # SoC Drivers
-  QcomPlatformClockInitLib|MSM8909Pkg/Library/QcomPlatformClockInitLib/QcomPlatformClockInitLib.inf
-
 [LibraryClasses.common.SEC]
   PrePiLib|EmbeddedPkg/Library/PrePiLib/PrePiLib.inf
   ExtractGuidedSectionLib|EmbeddedPkg/Library/PrePiExtractGuidedSectionLib/PrePiExtractGuidedSectionLib.inf
@@ -115,34 +97,12 @@
   MemoryAllocationLib|EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
   PrePiHobListPointerLib|ArmPlatformPkg/Library/PrePiHobListPointerLib/PrePiHobListPointerLib.inf
 
-  # SoC Drivers
-  GpioTlmmLib|MSM8909Pkg/Drivers/GpioTlmmDxe/GpioTlmmImplLib.inf
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiImplLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41ImplLib.inf
-  ClockLib|MSM8909Pkg/Drivers/ClockDxe/ClockImplLib.inf
-
 
 [LibraryClasses.common.DXE_DRIVER]
-  # SoC Drivers
-  QcomDxeTimerLib|MSM8909Pkg/Library/QTimerLib/QcomQTimerDxeTimerLib.inf
-  GpioTlmmLib|MSM8909Pkg/Drivers/GpioTlmmDxe/GpioTlmmLib.inf
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41Lib.inf
-  ClockLib|MSM8909Pkg/Drivers/ClockDxe/ClockImplLib.inf
 
 [LibraryClasses.common.UEFI_APPLICATION]
-  # SoC Drivers
-  GpioTlmmLib|MSM8909Pkg/Drivers/GpioTlmmDxe/GpioTlmmLib.inf
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41Lib.inf
-  ClockLib|MSM8909Pkg/Drivers/ClockDxe/ClockImplLib.inf
 
 [LibraryClasses.common.UEFI_DRIVER]
-  # SoC Drivers
-  GpioTlmmLib|MSM8909Pkg/Drivers/GpioTlmmDxe/GpioTlmmLib.inf
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41Lib.inf
-  ClockLib|MSM8909Pkg/Drivers/ClockDxe/ClockImplLib.inf
 
 
 ################################################################################
@@ -163,69 +123,24 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"Alpha"
 
   # Boot all cores or nothing :)
-  gArmPlatformTokenSpaceGuid.PcdCoreCount|4
+  gArmPlatformTokenSpaceGuid.PcdCoreCount|1
   gArmPlatformTokenSpaceGuid.PcdClusterCount|1
 
 
   #
   # ARM General Interrupt Controller
   #
-  gArmTokenSpaceGuid.PcdGicDistributorBase|0x0b000000
-  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x0b002000
+  gArmTokenSpaceGuid.PcdGicDistributorBase|0x12001000
+  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x12002000
 
-  # SoC Drivers GPIO TLMM
-  gQcomTokenSpaceGuid.PcdGpioTlmmBaseAddress|0x1000000
-  gQcomTokenSpaceGuid.PcdGpioTlmmSummaryIrq|240
-  gQcomTokenSpaceGuid.PcdGpioTlmmIoOffset|0x1004
-  gQcomTokenSpaceGuid.PcdGpioTlmmIoElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmCtlOffset|0x1000
-  gQcomTokenSpaceGuid.PcdGpioTlmmCtlElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrCfgOffset|0x1008
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrCfgElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusOffset|0x100c
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetOffset|0x1008
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetElementSize|0x10
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrEnableBit|0
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrStatusBit|0
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrAckHigh|FALSE
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetBit|5
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrTargetKpssValue|4
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrRawStatusBit|4
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrPolarityBit|1
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrDetectionBit|2
-  gQcomTokenSpaceGuid.PcdGpioTlmmIntrDetectionWidth|2
-  gQcomTokenSpaceGuid.PcdGpioTlmmInBit|0
-  gQcomTokenSpaceGuid.PcdGpioTlmmOutBit|1
-  gQcomTokenSpaceGuid.PcdGpioTlmmOeBit|9
-  gQcomTokenSpaceGuid.PcdGpioTlmmMuxBit|2
-  gQcomTokenSpaceGuid.PcdGpioTlmmDrvBit|6
-  gQcomTokenSpaceGuid.PcdGpioTlmmPullBit|0
-  gQcomTokenSpaceGuid.PcdGpioTlmmNumFunctions|12
-
-  # SoC Drivers SPMI
-  gQcomTokenSpaceGuid.PcdSpmiBaseAddress|0x02000000
-  
-   # SoC Drivers MMC
-  gQcomTokenSpaceGuid.PcdSdccMciHcMode|0x00000078
-  gQcomTokenSpaceGuid.PcdSdccHcPwrctlStatusReg|0x000000DC
-  gQcomTokenSpaceGuid.PcdSdccHcPwrctlMaskReg|0x000000E0
-  gQcomTokenSpaceGuid.PcdSdccHcPwrctlClearReg|0x000000E4
-  gQcomTokenSpaceGuid.PcdSdccHcPwrctlCtlReg|0x000000E8
-  gQcomTokenSpaceGuid.PcdMmcSdhciDdrCfgVal|0x80040870 # DDR_CFG_DLY_VAL Not using here
-  gQcomTokenSpaceGuid.PcdMmcSdc1HdrvPullCtlOffset|0x00002044
-  gQcomTokenSpaceGuid.PcdMmcSdc2HdrvPullCtlOffset|0x00002048
-
-  # SoC Drivers Misc
-  gQcomTokenSpaceGuid.PcdGicSpiStart|32
-
+  gArmTokenSpaceGuid.PcdArmArchTimerFreqInHz|26000000
   gArmTokenSpaceGuid.PcdArmArchTimerIntrNum|0x12
   gArmTokenSpaceGuid.PcdArmArchTimerVirtIntrNum|0x13
 
   # GUID of the UI app
   gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerMenuFile|{ 0x21, 0xaa, 0x2c, 0x46, 0x14, 0x76, 0x03, 0x45, 0x83, 0x6e, 0x8a, 0xb6, 0xf4, 0x66, 0x23, 0x31 }
 
-  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|5
+  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|0
 
   gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|FALSE
 
@@ -285,7 +200,6 @@
   MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
   MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
   EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
-  EmbeddedPkg/ResetRuntimeDxe/ResetRuntimeDxe.inf
   EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
 
@@ -307,17 +221,6 @@
   #
   # SoC Drivers
   #
-
-  # SoC Drivers (Cross-referenced from EFIDroid and Ben)
-  MSM8909Pkg/Drivers/BamDxe/BamDxe.inf
-  MSM8909Pkg/Drivers/GpioTlmmDxe/GpioTlmmDxe.inf
-  MSM8909Pkg/Drivers/GpioTlmmInterruptDxe/GpioTlmmInterruptDxe.inf
-  MSM8909Pkg/Drivers/SpmiDxe/SpmiDxe.inf
-  MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41Dxe.inf
-  MSM8909Pkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf
-  MSM8909Pkg/Drivers/KeypadDxe/KeypadDxe.inf
-  MSM8909Pkg/Drivers/ClockDxe/ClockDxe.inf
-  MSM8909Pkg/Drivers/SdhciMMCHSDxe/SdhciMMCHS.inf
 
   #
   # Virtual Keyboard

@@ -1,5 +1,4 @@
 #include <PiDxe.h>
-#include <Library/TimerLib.h>
 
 #include <Library/ArmLib.h>
 #include <Library/CacheMaintenanceLib.h>
@@ -10,11 +9,6 @@
 #include <Resources/FbColor.h>
 
 #include "FrameBufferSerialPortLib.h"
-
-// 1000000 = 1s
-//  500000 = 0.5s
-//  100000 = 0.1s
-UINTN delay = 50; // 0.03s
 
 FBCON_POSITION m_Position;
 FBCON_POSITION m_MaxPosition;
@@ -171,9 +165,6 @@ paint:
 	return;
 
 newline:
-	//  delay....
-	MicroSecondDelay( delay ); 
-
 	m_Position.y += scale_factor;
 	m_Position.x = 0;
 	if (m_Position.y >= m_MaxPosition.y - scale_factor)

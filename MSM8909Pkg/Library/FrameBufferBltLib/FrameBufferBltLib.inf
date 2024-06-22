@@ -28,9 +28,7 @@
   BaseLib
   BaseMemoryLib
   DebugLib
-  PcdLib
   
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
-  MSM8909Pkg/MSM8909Pkg.dec

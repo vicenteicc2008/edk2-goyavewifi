@@ -64,7 +64,7 @@
   ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
   ArmMmuLib|ArmPkg/Library/ArmMmuLib/ArmMmuBaseLib.inf
 
-  EfiResetSystemLib|MSM8909Pkg/Library/ResetSystemLib/ResetSystemLib.inf
+  EfiResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
 
   # ARM PL011 UART Driver
   PL011UartClockLib|ArmPlatformPkg/Library/PL011UartClockLib/PL011UartClockLib.inf
@@ -88,7 +88,6 @@
 
   SemihostLib|ArmPkg/Library/SemihostLib/SemihostLib.inf
 
-  ImagePropertiesRecordLib|MdeModulePkg/Library/ImagePropertiesRecordLib/ImagePropertiesRecordLib.inf
   TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
   AuthVariableLib|MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf
 
@@ -125,14 +124,12 @@
   # Add support for GCC stack protector
   NULL|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
 
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiImplLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41ImplLib.inf
-
 [LibraryClasses.common.SEC]
   ArmGicArchLib|ArmPkg/Library/ArmGicArchSecLib/ArmGicArchSecLib.inf
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   BaseMemoryLib|MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf
-  EfiResetSystemLib|MSM8909Pkg/Library/ResetSystemLib/ResetSystemLib.inf
+  EfiResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
+
 
 [LibraryClasses.common.PEI_CORE]
   HobLib|MdePkg/Library/PeiHobLib/PeiHobLib.inf
@@ -187,16 +184,12 @@
   SecurityManagementLib|MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf
   PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiImplLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41ImplLib.inf
 
 [LibraryClasses.common.UEFI_APPLICATION]
   UefiDecompressLib|MdePkg/Library/BaseUefiDecompressLib/BaseUefiTianoCustomDecompressLib.inf
   PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
   HiiLib|MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiImplLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41ImplLib.inf
 
 [LibraryClasses.common.UEFI_DRIVER,LibraryClasses.common.UEFI_APPLICATION]
   DxeServicesLib|MdePkg/Library/DxeServicesLib/DxeServicesLib.inf
@@ -210,8 +203,6 @@
   PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
   DxeServicesLib|MdePkg/Library/DxeServicesLib/DxeServicesLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
-  SpmiLib|MSM8909Pkg/Drivers/SpmiDxe/SpmiImplLib.inf
-  Pm8x41Lib|MSM8909Pkg/Drivers/Pm8x41Dxe/Pm8x41ImplLib.inf
 
 [LibraryClasses.common.DXE_RUNTIME_DRIVER]
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf

@@ -9,6 +9,4 @@ git clone https://github.com/tianocore/edk2-platforms.git
 cd "$curdir"
 git submodule init
 chmod +x ./scripts/firstrun.sh && ./scripts/firstrun.sh
-chmod +x ./scripts/y560.sh && ./scripts/y560.sh
-chmod +x ./scripts/E1M.sh && ./scripts/e1m.sh
-chmod +x ./scripts/saana.sh && ./scripts/saana.sh
+chmod +x ./scripts/goyavewifi.sh && ./scripts/goyavewifi.sh

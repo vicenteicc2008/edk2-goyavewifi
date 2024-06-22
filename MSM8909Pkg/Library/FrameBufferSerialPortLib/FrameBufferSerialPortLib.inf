@@ -20,7 +20,6 @@
   HobLib
   CompilerIntrinsicsLib
   CacheMaintenanceLib
-  TimerLib
 
 [Pcd]
   gMSM8909PkgTokenSpaceGuid.PcdMipiFrameBufferAddress

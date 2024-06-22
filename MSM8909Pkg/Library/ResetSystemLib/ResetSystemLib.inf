@@ -39,5 +39,3 @@
   DebugLib
   UefiBootServicesTableLib
   TimerLib
-  DloadUtilLib
-  Pm8x41Lib

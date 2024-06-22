@@ -14,7 +14,7 @@
 
 #include <AsmMacroIoLib.h>
 #include <Library/PcdLib.h>
-#include <Arm/AArch32.h>
+#include <Chipset/ArmV7.h>
 .text
 .align 3
 
