@@ -1,7 +1,7 @@
-Attempt to create a minimal EDK2 for some MSM8909 devices
+Attempt to create a minimal EDK2 for Samsung Galaxy Tab E 7.0 (SM-T113NU) but should work on SM-T116BU (3G Version)
 
 ## Status
-Boots to EFI shell, eMMC is working, the memory map is from WP target, ACPI from Lumia 650.
+Boots to PrePi (Fv Error).
 
 ## Building
 Tested on Ubuntu 22.04.
@@ -28,10 +28,14 @@ Also see [EDK2 website](https://github.com/tianocore/tianocore.github.io/wiki/Us
 
 Then ./scripts/firstrun.sh
 
-Finally, you can use one of the device scripts in the scripts folder to build your bootimg/thing.
+Finally, "./scripts/goyavewifi.sh" to compile.
 
-Then fastboot boot uefi.img from lk2nd.
+Then make a Image from AIK (Android Image Kitchen) and rename image-new.img to boot.img and make a tar for odin.
+
+Finally, flash it with Odin.
 
 # Credits
 
 SimpleFbDxe screen driver is from imbushuo's [Lumia950XLPkg](https://github.com/WOA-Project/Lumia950XLPkg).
+
+Based on sonic011gamer [edk2-msm8909](https://github.com/sonic011gamer/edk2-msm8909).

@@ -15,6 +15,10 @@
 #include <Library/ArmLib.h>
 
 ASM_FUNC(ArmPlatformPeiBootAction)
+  push    {fp, lr}
+  add     fp, sp, #4
+  nop
+  pop     {fp, lr}
   bx    lr
 
 //UINTN

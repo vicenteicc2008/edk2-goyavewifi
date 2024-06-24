@@ -35,7 +35,6 @@
 
 [Sources.common]
   MSM8909Pkg.c
-  MSM8909PkgMem.c
 
 [Sources.Arm]
   Arm/ArmPlatformHelper.S    | GCC

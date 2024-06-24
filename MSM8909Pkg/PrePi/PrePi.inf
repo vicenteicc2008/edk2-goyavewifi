@@ -1,109 +1,74 @@
-#/** @file
-#
-#  (C) Copyright 2015 Hewlett-Packard Development Company, L.P.<BR>
-#  Copyright (c) 2011-2017, ARM Ltd. All rights reserved.<BR>
-#  Copyright (c) 2020, Arm Limited. All rights reserved.<BR>
-#
-#  SPDX-License-Identifier: BSD-2-Clause-Patent
-#
-#**/
-
 [Defines]
   INF_VERSION                    = 0x00010005
   BASE_NAME                      = PrePi
-  FILE_GUID                      = 3e401783-cc94-4fcd-97bc-bd35ac369d2f
+  FILE_GUID                      = 556A7392-5DF4-4067-B85C-AFDA4CDA586D
   MODULE_TYPE                    = SEC
   VERSION_STRING                 = 1.0
 
-[Sources]
-  Pi.h
+[Sources.common]
   Pi.c
 
-[BuildOptions.ARM]
-  GCC:*_*_*_CC_FLAGS = -Werror -Wno-error=unused-function
-
 [Sources.ARM]
-  ReleaseInfo.S | GCC
-  ProcessorSupport.S | GCC
   ModuleEntryPoint.S | GCC
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Werror -Wno-error=unused-function 
 
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   EmbeddedPkg/EmbeddedPkg.dec
   ArmPkg/ArmPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
   MSM8909Pkg/MSM8909Pkg.dec
 
 [LibraryClasses]
-  BaseLib
-  CacheMaintenanceLib
-  DebugLib
-  DebugAgentLib
   ArmLib
+  ArmMmuLib
+  BaseLib
+  DebugLib
   IoLib
-  TimerLib
-  SerialPortLib
   ExtractGuidedSectionLib
   LzmaDecompressLib
-  DebugAgentLib
-  PrePiLib
-  ArmPlatformLib
-  ArmPlatformStackLib
-  MemoryAllocationLib
-  HobLib
+  PeCoffGetEntryPointLib
   PrePiHobListPointerLib
-  PlatformPeiLib
+  CacheMaintenanceLib
+  DebugAgentLib
+  SerialPortLib
+  MemoryAllocationLib
+  PrePiMemoryAllocationLib
+  PerformanceLib
+  HobLib
+  CompilerIntrinsicsLib
+  # Platform-specific libraries
   MemoryInitPeiLib
-
-[Ppis]
-  gArmMpCoreInfoPpiGuid
-
-[Guids]
-  gArmMpCoreInfoGuid
-  gEfiFirmwarePerformanceGuid
-
-[FeaturePcd]
-  gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob
-  gArmPlatformTokenSpaceGuid.PcdSendSgiToBringUpSecondaryCores
-
-[Pcd]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
+  PlatformPeiLib
+  # MpPark
 
 [FixedPcd]
-  gArmTokenSpaceGuid.PcdVFPEnabled
-
-  gArmTokenSpaceGuid.PcdFdBaseAddress
-  gArmTokenSpaceGuid.PcdFdSize
-
-  gArmTokenSpaceGuid.PcdFvBaseAddress
-  gArmTokenSpaceGuid.PcdFvSize
-
-  gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize
-  gArmPlatformTokenSpaceGuid.PcdCPUCoreSecondaryStackSize
-
-  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize
-
-  gArmPlatformTokenSpaceGuid.PcdCoreCount
   gArmTokenSpaceGuid.PcdCpuVectorBaseAddress
-
-  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize
-
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIReclaimMemory
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIMemoryNVS
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiReservedMemoryType
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesData
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesCode
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesCode
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesData
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderCode
-  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderData
-
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate
   gEmbeddedTokenSpaceGuid.PcdPrePiStackBase
   gEmbeddedTokenSpaceGuid.PcdPrePiStackSize
-  gMSM8909PkgTokenSpaceGuid.PcdUefiMemPoolBase
-  gMSM8909PkgTokenSpaceGuid.PcdUefiMemPoolSize
+  gArmTokenSpaceGuid.PcdFvBaseAddress
+  gArmTokenSpaceGuid.PcdFvSize
+  gArmTokenSpaceGuid.PcdFdBaseAddress
+  gArmTokenSpaceGuid.PcdFdSize
+  gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize
+  gArmPlatformTokenSpaceGuid.PcdCPUCoreSecondaryStackSize
+  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize
+  gArmPlatformTokenSpaceGuid.PcdCoreCount
+
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize  
 
 [Pcd]
   gArmTokenSpaceGuid.PcdSystemMemoryBase
   gArmTokenSpaceGuid.PcdSystemMemorySize
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
+
+  gMSM8909PkgTokenSpaceGuid.PcdUefiMemPoolBase
+  gMSM8909PkgTokenSpaceGuid.PcdUefiMemPoolSize
+  gMSM8909PkgTokenSpaceGuid.PcdMipiFrameBufferAddress

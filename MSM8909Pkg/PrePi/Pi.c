@@ -33,7 +33,7 @@ VOID UartInit(VOID)
 
   SerialPortInitialize();
 
-  DEBUG((EFI_D_INFO, "\nPEdeka on SC8830 (ARM)\n"));
+  DEBUG((EFI_D_INFO, "\nTianoCore on SC8830 (ARM)\n"));
   DEBUG(
       (EFI_D_INFO, "Firmware version %s built %a %a\n\n",
        (CHAR16 *)PcdGetPtr(PcdFirmwareVersionString), __TIME__, __DATE__));
@@ -50,7 +50,7 @@ VOID Main (IN  UINT64  StartTimeStamp)
   UINTN UefiMemorySize = 0;
   UINTN StacksBase     = 0;
   UINTN StacksSize     = 0;
-  
+
   // Architecture-specific initialization
   // Enable Floating Point
   ArmEnableVFP();
@@ -58,6 +58,7 @@ VOID Main (IN  UINT64  StartTimeStamp)
   /* Enable program flow prediction, if supported */
   ArmEnableBranchPrediction();
 
+  UartInit();
 
   // Declare UEFI region
   MemoryBase     = FixedPcdGet32(PcdSystemMemoryBase);
@@ -98,33 +99,51 @@ VOID Main (IN  UINT64  StartTimeStamp)
   BuildStackHob ((UINTN)StacksBase, StacksSize);
 
   // TODO: Call CpuPei as a library
-  BuildCpuHob (40, PcdGet8 (PcdPrePiCpuIoSize));
+  BuildCpuHob (ArmGetPhysicalAddressBits (), PcdGet8 (PcdPrePiCpuIoSize));
 
   // Set the Boot Mode
   SetBootMode (BOOT_WITH_FULL_CONFIGURATION);
 
   // Initialize Platform HOBs (CpuHob and FvHob)
   Status = PlatformPeim ();
-  ASSERT_EFI_ERROR (Status);
+  // ASSERT_EFI_ERROR (Status);
+  if (EFI_ERROR(Status))
+    {
+        DEBUG((EFI_D_ERROR, "Failed to Initialize Platform HOBS\n"));
+    }else{
+       DEBUG((EFI_D_INFO | EFI_D_LOAD, "Platform HOBS Initialized\n"));
+  }
 
   // Now, the HOB List has been initialized, we can register performance information
-  //PERF_START (NULL, "PEI", NULL, StartTimeStamp);
+  // PERF_START (NULL, "PEI", NULL, StartTimeStamp);
 
   // SEC phase needs to run library constructors by hand.
   ProcessLibraryConstructorList ();
 
   // Assume the FV that contains the SEC (our code) also contains a compressed FV.
   Status = DecompressFirstFv ();
-  ASSERT_EFI_ERROR (Status);
+  // ASSERT_EFI_ERROR (Status);
+  if (EFI_ERROR(Status))
+    {
+        DEBUG((EFI_D_ERROR, "FV does not contains a compressed FV\n"));
+    }else{
+       DEBUG((EFI_D_INFO | EFI_D_LOAD, "FV contains a compressed FV\n"));
+  }
 
   // Load the DXE Core and transfer control to it
   Status = LoadDxeCoreFromFv (NULL, 0);
-  ASSERT_EFI_ERROR (Status);
+  // ASSERT_EFI_ERROR (Status);
+  if (EFI_ERROR(Status))
+    {
+        DEBUG((EFI_D_ERROR, "Failed to load DXE Core\n"));
+    }else{
+       DEBUG((EFI_D_INFO | EFI_D_LOAD, "Loading DXE Core\n"));
+  }
+
 }
 
 VOID
 CEntryPoint ()
 {
-  UartInit();
   Main(0);
 }
