@@ -10,7 +10,7 @@ First, clone EDK2.
 
 ```
 cd ..
-git clone https://github.com/tianocore/edk2.git -b edk2-stable202405--recursive
+git clone https://github.com/tianocore/edk2.git -b edk2-stable202305 --recursive
 git clone https://github.com/tianocore/edk2-platforms.git
 ```
 
