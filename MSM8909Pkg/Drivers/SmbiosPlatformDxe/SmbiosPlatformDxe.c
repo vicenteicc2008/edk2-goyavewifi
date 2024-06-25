@@ -121,7 +121,7 @@ SMBIOS_TABLE_TYPE0 mBIOSInfoType0 = {
 };
 
 CHAR8 *mBIOSInfoType0Strings[] = {
-  "Blue spoghet.", // Vendor String
+  "Bad Dodo (Bad Bunny).", // Vendor String
   "Built: " __DATE__,             // BiosVersion String
   "Built: " __DATE__,             // BiosReleaseDate String
   NULL
@@ -142,8 +142,8 @@ SMBIOS_TABLE_TYPE1 mSysInfoType1 = {
   6,    // Family String
 };
 CHAR8  *mSysInfoType1Strings[] = {
-  "Qualcomm",
-  "MSM8909",
+  "Spreadtrum",
+  "SC8830",
   "",
   "0bc52bb9-9473-4875-be2a-3973076c20e2",
   "",
@@ -176,8 +176,8 @@ SMBIOS_TABLE_TYPE2  mBoardInfoType2 = {
   { 0 }                     // ContainedObjectHandles[1];
 };
 CHAR8  *mBoardInfoType2Strings[] = {
-  "Qualcomm",
-  "MSM8909",
+  "Spreadtrum",
+  "SC8830",
   "",
   "0bc52bb9-9473-4875-be2a-3973076c20e2",
   "",
@@ -207,7 +207,7 @@ SMBIOS_TABLE_TYPE3  mEnclosureInfoType3 = {
   { { 0 } },    // ContainedElements[1];
 };
 CHAR8  *mEnclosureInfoType3Strings[] = {
-  "Qualcomm",
+  "Spreadtrum",
   "1",
   "0bc52bb9-9473-4875-be2a-3973076c20e2",
   "",
@@ -298,9 +298,9 @@ SMBIOS_TABLE_TYPE4 mProcessorInfoType4 = {
 
 CHAR8 *mProcessorInfoType4Strings[] = {
   "Socket",
-  "Qualcomm Inc.",
-  "Qualcomm Snapdragon 21x Processor (MSM8909)",
-  "MSM8909",
+  "Spreadtrum Communications, Inc.",
+  "Spreadtrum SC8830 Processor",
+  "SC8830",
   NULL
 };
 

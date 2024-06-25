@@ -25,7 +25,6 @@
   BUILD_TARGETS                  = DEBUG|RELEASE
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = MSM8909Pkg/MSM8909Pkg.fdf
-  DEFINE USE_SCREEN_FOR_SERIAL_OUTPUT = 1
 
 !include MSM8909Pkg/CommonDsc.dsc.inc
 
@@ -39,7 +38,6 @@
   VariablePolicyLib|MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLibRuntimeDxe.inf
 
 [LibraryClasses.common]
-  PrePiMemoryAllocationLib|EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
   OrderedCollectionLib|MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf
   ArmLib|ArmPkg/Library/ArmLib/ArmBaseLib.inf
   ArmPlatformLib|MSM8909Pkg/Library/MSM8909PkgLib/MSM8909PkgLib.inf
@@ -77,14 +75,10 @@
   VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
 
   # SimpleFbDxe
-  FrameBufferBltLib|MSM8909Pkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
+  FrameBufferBltLib|MdeModulePkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
   
-    # Platform Drivers
-!if $(USE_SCREEN_FOR_SERIAL_OUTPUT) == 1
+   # Platform Drivers
   SerialPortLib|MSM8909Pkg/Library/FrameBufferSerialPortLib/FrameBufferSerialPortLib.inf
-!else
-  SerialPortLib|MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
-!endif
 
   PlatformBootManagerLib|MSM8909Pkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
   MemoryInitPeiLib|MSM8909Pkg/Library/MemoryInitPeiLib/PeiMemoryAllocationLib.inf
@@ -96,13 +90,6 @@
   HobLib|EmbeddedPkg/Library/PrePiHobLib/PrePiHobLib.inf
   MemoryAllocationLib|EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
   PrePiHobListPointerLib|ArmPlatformPkg/Library/PrePiHobListPointerLib/PrePiHobListPointerLib.inf
-
-
-[LibraryClasses.common.DXE_DRIVER]
-
-[LibraryClasses.common.UEFI_APPLICATION]
-
-[LibraryClasses.common.UEFI_DRIVER]
 
 
 ################################################################################
@@ -134,8 +121,8 @@
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x12002000
 
   gArmTokenSpaceGuid.PcdArmArchTimerFreqInHz|26000000
-  gArmTokenSpaceGuid.PcdArmArchTimerIntrNum|18
-  gArmTokenSpaceGuid.PcdArmArchTimerVirtIntrNum|19
+  gArmTokenSpaceGuid.PcdArmArchTimerIntrNum|0x12
+  gArmTokenSpaceGuid.PcdArmArchTimerVirtIntrNum|0x13
 
   # GUID of the UI app
   gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerMenuFile|{ 0x21, 0xaa, 0x2c, 0x46, 0x14, 0x76, 0x03, 0x45, 0x83, 0x6e, 0x8a, 0xb6, 0xf4, 0x66, 0x23, 0x31 }
@@ -260,6 +247,7 @@
   MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+  MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
   FatPkg/EnhancedFatDxe/Fat.inf
 
   #

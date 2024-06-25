@@ -9,6 +9,7 @@
   Pi.c
 
 [Sources.ARM]
+  ReleaseInfo.S | GCC
   ModuleEntryPoint.S | GCC
 
 [BuildOptions.ARM]
@@ -25,26 +26,26 @@
 
 [LibraryClasses]
   ArmLib
+  ArmPlatformLib
+  ArmPlatformStackLib
   ArmMmuLib
   BaseLib
-  DebugLib
-  IoLib
-  ExtractGuidedSectionLib
-  LzmaDecompressLib
-  PeCoffGetEntryPointLib
-  PrePiHobListPointerLib
   CacheMaintenanceLib
-  DebugAgentLib
-  SerialPortLib
-  MemoryAllocationLib
-  PrePiMemoryAllocationLib
-  PerformanceLib
-  HobLib
   CompilerIntrinsicsLib
-  # Platform-specific libraries
+  DebugAgentLib
+  DebugLib
+  ExtractGuidedSectionLib
+  HobLib
+  IoLib
+  LzmaDecompressLib
+  MemoryAllocationLib
   MemoryInitPeiLib
+  PeCoffGetEntryPointLib
   PlatformPeiLib
-  # MpPark
+  PrePiHobListPointerLib
+  PrePiLib
+  SerialPortLib
+  TimerLib
 
 [FixedPcd]
   gArmTokenSpaceGuid.PcdCpuVectorBaseAddress

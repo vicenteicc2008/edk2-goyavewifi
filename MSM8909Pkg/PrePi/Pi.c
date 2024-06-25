@@ -26,11 +26,6 @@ VOID EFIAPI ProcessLibraryConstructorList(VOID);
 
 VOID UartInit(VOID)
 {
-  UINT8 *base = (UINT8 *)0x9eef4000ull;
-  for (UINTN i = 0; i < 0x00708000; i++) {
-    base[i] = 0;
-  }
-
   SerialPortInitialize();
 
   DEBUG((EFI_D_INFO, "\nTianoCore on SC8830 (ARM)\n"));
@@ -58,7 +53,10 @@ VOID Main (IN  UINT64  StartTimeStamp)
   /* Enable program flow prediction, if supported */
   ArmEnableBranchPrediction();
 
-  UartInit();
+  UINT8 *base = (UINT8 *)0x9eef4000ull;
+  for (UINTN i = 0; i < 0x00708000; i++) {
+    base[i] = 0;
+  }
 
   // Declare UEFI region
   MemoryBase     = FixedPcdGet32(PcdSystemMemoryBase);
@@ -132,7 +130,7 @@ VOID Main (IN  UINT64  StartTimeStamp)
 
   // Load the DXE Core and transfer control to it
   Status = LoadDxeCoreFromFv (NULL, 0);
-  // ASSERT_EFI_ERROR (Status);
+  //ASSERT_EFI_ERROR (Status);
   if (EFI_ERROR(Status))
     {
         DEBUG((EFI_D_ERROR, "Failed to load DXE Core\n"));
@@ -145,5 +143,6 @@ VOID Main (IN  UINT64  StartTimeStamp)
 VOID
 CEntryPoint ()
 {
+  UartInit();
   Main(0);
 }

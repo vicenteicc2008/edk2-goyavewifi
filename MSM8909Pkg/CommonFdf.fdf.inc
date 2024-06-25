@@ -145,4 +145,3 @@
     RAW ACPI               |.acpi
     RAW ASL                |.aml
   }
-
