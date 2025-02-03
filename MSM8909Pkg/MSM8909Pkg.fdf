@@ -128,6 +128,10 @@ READ_LOCK_STATUS   = TRUE
   #
   # SoC Drivers
   #
+  # INF MSM8909Pkg/Drivers/SprdClockDxe/SprdClockDxe.inf
+  INF MSM8909Pkg/Drivers/SprdI2CDxe/SprdI2CDxe.inf
+  INF MSM8909Pkg/Drivers/SprdDmaDxe/SprdDmaDxe.inf
+  # INF MSM8909Pkg/Drivers/SprdMmcDxe/SprdMmcDxe.inf
 
   #
   # Virtual Keyboard

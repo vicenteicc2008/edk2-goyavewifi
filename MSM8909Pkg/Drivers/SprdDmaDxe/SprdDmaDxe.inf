@@ -1,0 +1,37 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdDmaDxe
+  FILE_GUID                      = A3A5CCBF-2F36-4213-A404-56DB3A20194C
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SprdDmaDxeInitialize
+
+[Sources.common]
+  SprdDmaDxe.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  MSM8909Pkg/MSM8909Pkg.dec
+
+[LibraryClasses]
+  PcdLib
+  UefiLib
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  BaseMemoryLib
+  IoLib
+  ArmLib
+  BaseLib
+  DebugLib
+  UefiBootServicesTableLib
+
+[Guids]
+
+[Protocols]
+
+[depex]
+ TRUE

@@ -26,11 +26,6 @@ VOID EFIAPI ProcessLibraryConstructorList(VOID);
 
 VOID UartInit(VOID)
 {
-  UINT8 *base = (UINT8 *)0x9eef4000ull;
-  for (UINTN i = 0; i < 0x00708000; i++) {
-    base[i] = 0;
-  }
-
   SerialPortInitialize();
 
   DEBUG((EFI_D_INFO, "\nTianoCore on SC8830 (ARM)\n"));

@@ -1,0 +1,37 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdMmcDxe
+  FILE_GUID                      = 6E54BE28-06D7-49D0-9B36-CAD972587F7F
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SprdSdhciDxeInit
+
+[Sources.common]
+  SprdMmcDxe.c
+  eMMCFlashIo.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  MSM8909Pkg/MSM8909Pkg.dec
+
+[LibraryClasses]
+  DebugLib
+  ArmLib
+  BaseLib
+  UefiDriverEntryPoint
+  TimerLib
+  IoLib
+  BaseMemoryLib
+
+[Protocols]
+  gEfiDiskIoProtocolGuid                        ## CONSUMES
+  gEfiBlockIoProtocolGuid                       ## PRODUCES
+  gEfiDevicePathProtocolGuid                    ## PRODUCES
+  gEfiDriverDiagnostics2ProtocolGuid            ## SOMETIMES_PRODUCES
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-overflow -Wno-unused-variable -Wno-unused-function
+
+[Depex]
+  TRUE

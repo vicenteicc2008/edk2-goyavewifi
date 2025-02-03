@@ -110,7 +110,7 @@
 [PcdsFixedAtBuild.common]
   gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|4
 
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Dodo viC (vice2008)"
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Some Random Trap Artist which likes Anuel AA in Chile"
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"1.0-rc1"
 
   # Memory protection
@@ -157,14 +157,14 @@
 
 # Make it so ConOut will choose what's best at startup 
   [PcdsDynamicDefault.common]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|0 # /8 = column
-  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|0 #/19 = row
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|0
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution|0
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow|0
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn|0
-  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|0
-  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|0
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|1024 # /8 = column
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|600 #/19 = row
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|1024
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution|600
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow|32
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn|128
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|32
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|128
 
 ################################################################################
 #
@@ -217,6 +217,10 @@
   # SoC Drivers
   #
   MSM8909Pkg/Drivers/SprdGpioDxe/SprdGpioDxe.inf
+  MSM8909Pkg/Drivers/SprdI2CDxe/SprdI2CDxe.inf
+  # MSM8909Pkg/Drivers/SprdClockDxe/SprdClockDxe.inf
+  MSM8909Pkg/Drivers/SprdDmaDxe/SprdDmaDxe.inf
+  # MSM8909Pkg/Drivers/SprdMmcDxe/SprdMmcDxe.inf
 
   # MSM8909Pkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf
   # MSM8909Pkg/Drivers/KeypadDxe/KeypadDxe.inf

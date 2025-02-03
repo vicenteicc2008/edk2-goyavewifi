@@ -9,6 +9,19 @@
     }                                                                          \
   }
 
+#define GPIO_PULL_NONE   0
+#define GPIO_PULL_DOWN   1
+#define GPIO_PULL_UP     3
+
+#define GPIO_DRV_FAST    0
+#define GPIO_DRV_SLOW    1
+
+#define GPIO_INPUT       0
+#define GPIO_OUTPUT      1
+
+#define GPIO_INVALID_ID 0xffff
+#define INVALID_REG		(~(UINT32)0)
+
 //
 // Protocol interface structure
 //

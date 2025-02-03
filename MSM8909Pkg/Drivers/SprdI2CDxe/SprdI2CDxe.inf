@@ -1,0 +1,34 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdI2CDxe
+  FILE_GUID                      = 1474F8F3-D2B4-4915-8AC1-F8C53FD2137C
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = InitI2CDriver
+
+[Sources.common]
+  SprdI2CDxe.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  MSM8909Pkg/MSM8909Pkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  DebugLib
+  IoLib
+  TimerLib
+  BaseMemoryLib
+  ArmLib
+
+[Protocols]
+  gSprdGpioProtocolGuid
+  # gEfiSprdI2CProtocolGuid
+
+[Depex]
+  TRUE
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Wno-unused-variable

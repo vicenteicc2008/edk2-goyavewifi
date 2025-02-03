@@ -34,6 +34,8 @@ Then make a Image from AIK (Android Image Kitchen) and rename image-new.img to b
 
 Finally, flash it with Odin.
 
+or use one of my releases in github
+
 # Credits
 
 SimpleFbDxe screen driver is from imbushuo's [Lumia950XLPkg](https://github.com/WOA-Project/Lumia950XLPkg).

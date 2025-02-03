@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Dodo viC <vicenteicc2008@gmail.com>
+ * Copyright (c) 2024, Dodo vi-C <vicenteicc2008@gmail.com>
  * Based on the open source driver from edk2-tensor and the key reading code from the uniLoader fork by BotchedRPR
  */
 
@@ -13,6 +13,11 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Protocol/SprdGpio.h>
+
+#include "SprdGpio.h"
+
+#define GPIO_INVALID_ID 0xffff
+#define INVALID_REG		(~(UINT32)0)
 
 UINT32 GpioBase = FixedPcdGet32(GpioBase);
 
@@ -41,6 +46,8 @@ SprdGpioDxeInitialize(
 {
   EFI_STATUS  Status = EFI_SUCCESS;
   EFI_HANDLE  Handle = NULL;
+
+  DEBUG((EFI_D_INFO, "Initializing Spreadtrum GPIO\n"));
 
   //
   // Make sure the Spreadtrum Gpio protocol has not been installed in the system yet.
