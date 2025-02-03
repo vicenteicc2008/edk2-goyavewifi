@@ -43,3 +43,5 @@ SimpleFbDxe screen driver is from imbushuo's [Lumia950XLPkg](https://github.com/
 Based on sonic011gamer [edk2-msm8909](https://github.com/sonic011gamer/edk2-msm8909).
 
 SprdGpioDxe driver is from halal-beef's [edk2-exynos9830](https://github.com/halal-beef/edk2-exynos9830).
+
+some drivers like SprdClockDxe, SprdMmcDxe and SprdI2CDxe are from u-boot and kernel
