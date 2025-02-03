@@ -30,7 +30,7 @@ Then ./scripts/firstrun.sh
 
 Finally, "./scripts/goyavewifi.sh" to compile.
 
-Then make a Image from AIK (Android Image Kitchen) and rename image-new.img to boot.img and make a tar for odin.
+Then make a Image from AIK (Android Image Kitchen) and rename image-new.img to boot.img and make a tar for flash with odin.
 
 Finally, flash it with Odin.
 
