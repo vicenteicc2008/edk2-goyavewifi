@@ -28,13 +28,14 @@ DefinitionBlock ("", "DSDT", 2, "SPRDD ", "SC8830 ", 0x00000003)
 
 		Device(SDC1)
 		{
-			Name (_HID, "SPRD0110")
-			Name (_CID, "ACPI/SPRD0110")
+			Name (_HID, "SPRD0120")
+			Name (_CID, "ACPI/SPRD0120")
 			Name (_UID, 0)
 			Method (_CRS, 0x0, NotSerialized) {
 				Name (RBUF, ResourceTemplate ()
 				{
 					Memory32Fixed (ReadWrite, 0xF511C000, 0x00001000)
+					Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive, ,, ) { 92 }
 				})
 				Return (RBUF)
 			}
