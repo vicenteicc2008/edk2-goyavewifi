@@ -71,7 +71,7 @@ SprdSdhciDxeInit (
 	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Initializing MMC/SD card\n"));
 
 	// Install BlockIO Protocol
-	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Install Block IO Protocol\n"));
+	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Installing Block IO Protocol\n"));
 
 	Status = gBS->InstallMultipleProtocolInterfaces (
                   &ImageHandle,

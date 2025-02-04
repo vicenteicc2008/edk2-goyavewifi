@@ -18,7 +18,9 @@
 
 #include <Uefi/UefiGpt.h>
 
-#define DRIVER_NAME "SprdSdhciDxe"
+#define DXE_DRIVER_NAME "SprdSdhciDxe"
+
+#define SDHCI_USE_LEDS_CLASS
 
 #define __be32_to_cpu(x)  ((0x000000ff&((x)>>24)) | (0x0000ff00&((x)>>8)) |       \
                (0x00ff0000&((x)<< 8)) | (0xff000000&((x)<<24)))
