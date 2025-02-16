@@ -1,36 +1,32 @@
-DefinitionBlock ("", "DSDT", 2, "SPRDD ", "SC8830 ", 0x00000003)
+DefinitionBlock("DSDT.aml", "DSDT", 0x02, "SPRDD ", "SC8830 ", 0x00000003)
 {
-	Scope (\_SB)
-	{
-		Device(CPU0) 
+    Scope(_SB_)
+    {
+        Device(CPU0)
         {
             Name(_HID, "ACPI0007")
-            Name(_UID, 0)
+            Name(_UID, Zero)
         }
-
-        Device(CPU1) 
+        Device(CPU1)
         {
             Name(_HID, "ACPI0007")
-            Name(_UID, 1)
+            Name(_UID, One)
         }
-
-        Device(CPU2) 
+        Device(CPU2)
         {
             Name(_HID, "ACPI0007")
-            Name(_UID, 2)
+            Name(_UID, 0x2)
         }
-
-        Device(CPU3) 
+        Device(CPU3)
         {
             Name(_HID, "ACPI0007")
-            Name(_UID, 3)
+            Name(_UID, 0x3)
         }
-
-		Device(SDC1)
-		{
-			Name (_HID, "SPRD0120")
-			Name (_CID, "ACPI/SPRD0120")
-			Name (_UID, 0)
+        Device(SDC1)
+        {
+            Name(_HID, "SPRD0120")
+            Name(_CID, "ACPI/SPRD0120")
+            Name(_UID, Zero)
 			Method (_CRS, 0x0, NotSerialized) {
 				Name (RBUF, ResourceTemplate ()
 				{
@@ -39,17 +35,17 @@ DefinitionBlock ("", "DSDT", 2, "SPRDD ", "SC8830 ", 0x00000003)
 				})
 				Return (RBUF)
 			}
-			
-			Device(EMMC)
-			{
-				Method (_ADR) {
-					Return (8)
-				}
-				
-				Method (_RMV) {
-					Return (0)
-				}
-			}
-		}
-	}
+            Device(EMMC)
+            {
+                Method(_ADR, 0x0, NotSerialized)
+                {
+                    Return(0x8)
+                }
+                Method(_RMV, 0x0, NotSerialized)
+                {
+                    Return(Zero)
+                }
+            }
+        }
+    }
 }
