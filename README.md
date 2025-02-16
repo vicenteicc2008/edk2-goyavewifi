@@ -1,7 +1,7 @@
 Attempt to create a minimal EDK2 for Samsung Galaxy Tab E 7.0 (SM-T113NU) but should work on SM-T116 (3G Version)
 
 ## Status
-Boots to efi shell.
+Boots to UEFI Shell.
 
 ## Building
 Tested on Ubuntu 22.04.
