@@ -46,4 +46,4 @@ SprdGpioDxe driver is from halal-beef's [edk2-exynos9830](https://github.com/hal
 
 some drivers like SprdMmcDxe and SprdI2CDxe are from u-boot and linux kernel
 
-DSDT is from AistopGit's [edk2-exynos5410(https://github.com/AistopGit/edk2-exynos5410)]
+DSDT is from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
