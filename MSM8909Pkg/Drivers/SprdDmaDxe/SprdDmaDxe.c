@@ -8,6 +8,8 @@
 #define SPRD_DMA_MAX     16
 #define SPRD_DMA_BASE    0xF5112000
 
+#define DMA_COPY_USER_MAX 4
+
 EFI_STATUS
 EFIAPI
 SprdDmaDxeInitialize (
