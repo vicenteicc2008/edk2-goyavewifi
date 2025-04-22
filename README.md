@@ -28,7 +28,7 @@ Also see [EDK2 website](https://github.com/tianocore/tianocore.github.io/wiki/Us
 
 Then ./scripts/firstrun.sh
 
-Finally, "./scripts/goyavewifi.sh" to compile.
+Finally, "./scripts/goyavewifi.sh" to compile or "./scripts/goyave3g.sh to compile for goyave3g".
 
 Then make a Image from AIK (Android Image Kitchen) and rename image-new.img to boot.img and make a tar for flash with odin.
 
