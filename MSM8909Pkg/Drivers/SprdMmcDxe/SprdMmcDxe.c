@@ -1,5 +1,9 @@
 #include "mmc.h"
 
+#define MAX_TUNING_LOOP 40
+
+#define SDHCI_USE_LEDS_CLASS
+
 #define  SDHCI_PRESENT_STATE	0x24
 #define  SDHCI_CMD_INHIBIT	0x00000001
 #define  SDHCI_DATA_INHIBIT	0x00000002
@@ -21,6 +25,13 @@
 
 #define SDHCI_ADMA_ERROR	0x54
 #define SDHCI_ADMA_ADDRESS	0x58
+
+#define SDHCI_INT_CARD_INSERT	0x00000040
+#define SDHCI_INT_CARD_REMOVE	0x00000080
+#define MMC_CAP_NONREMOVABLE	(1 << 8)	/* Nonremovable e.g. eMMC */
+#define MMC_CAP_WAIT_WHILE_BUSY	(1 << 9)	/* Waits while card is busy */
+#define MMC_CAP_ERASE		(1 << 10)	/* Allow erase/trim commands */
+#define MMC_CAP_1_8V_DDR	(1 << 11)	/* can support */
 
 STATIC UINTN DebugQuirks = 0;
 STATIC UINTN DebugQuirks2;
@@ -54,6 +65,21 @@ EFI_BLOCK_IO_MEDIA gSdMmc2 = {
 extern UINT32                     gFileSyStemSize;
 
 EFI_HANDLE gSdMmcHandleArray[MAX_MMC_NUM];
+
+struct MMC_HOST {
+	INTN			index;
+	UINTN		f_min;
+	UINTN		f_max;
+	UINTN		f_init;
+	UINT32			ocr_avail;
+	UINT32			ocr_avail_sdio;	/* SDIO-specific OCR */
+	UINT32			ocr_avail_sd;	/* SD-specific OCR */
+	UINT32			ocr_avail_mmc;	/* MMC-specific OCR */
+	UINT32			max_current_330;
+	UINT32			max_current_300;
+	UINT32			max_current_180;
+	UINT32			Caps;
+};
 
 typedef struct {
     EFI_PHYSICAL_ADDRESS ioaddr;  // Dirección base de los registros
@@ -150,17 +176,19 @@ typedef struct {
 	UINTN clk_mul;	/* Clock Muliplier value */
 	UINTN clock;
 	UINT8 pwr;
+	UINTN BaseAddress;
+	struct MMC_HOST *Mmc;
 } SDHCI_HOST;
 
-static void sdhci_dumpregs(SDHCI_HOST *host)
+STATIC VOID SdhciDumpRegs(SDHCI_HOST *host)
 {
     UINT32 i, regAddr;
     UINT32 val1, val2, val3, val4;
 
-    DebugPrint(DEBUG_LEVEL_ERROR, DXE_DRIVER_NAME ": =========== REGISTER DUMP ===========\n");
+    DEBUG((EFI_D_INFO, "SprdSdhciDxe: =========== REGISTER DUMP ===========\n"));
 
     // Imprimir nombre del host si tienes un campo que lo contenga
-    DebugPrint(DEBUG_LEVEL_ERROR, DXE_DRIVER_NAME ": Host Address: 0x%p\n", host);
+    DEBUG((EFI_D_INFO, "SprdSdhciDxe: Host Address: 0x%p\n", host));
 
     regAddr = SDHCI_DMA_ADDRESS;
 
@@ -171,24 +199,82 @@ static void sdhci_dumpregs(SDHCI_HOST *host)
         val3 = MmioRead32(host->ioaddr + regAddr + 8 + 16 * i);
         val4 = MmioRead32(host->ioaddr + regAddr + 12 + 16 * i);
 
-        DebugPrint(DEBUG_LEVEL_ERROR, DXE_DRIVER_NAME ": 0x%08x | 0x%08x | 0x%08x | 0x%08x\n",
-                    val1, val2, val3, val4);
+        DEBUG((EFI_D_ERROR, "SprdSdhciDxe: 0x%08x | 0x%08x | 0x%08x | 0x%08x\n",
+                    val1, val2, val3, val4));
     }
 
     // Volcar registros adicionales
-    DebugPrint(DEBUG_LEVEL_ERROR, DXE_DRIVER_NAME ": 0x%08x | 0x%08x | 0x%08x\n",
+    DEBUG((EFI_D_ERROR, "SprdSdhciDxe: 0x%08x | 0x%08x | 0x%08x\n",
                 MmioRead32(host->ioaddr + 0x80),
                 MmioRead32(host->ioaddr + 0x84),
-                MmioRead32(host->ioaddr + 0x88));
+                MmioRead32(host->ioaddr + 0x88)));
 
     // Verificar si se usa ADMA
     if (host->flags & 0x01) {  // Asumimos que SDHCI_USE_ADMA está representado por 0x01
-        DebugPrint(DEBUG_LEVEL_ERROR, DXE_DRIVER_NAME ": ADMA Err: 0x%08x | ADMA Ptr: 0x%08x\n",
+        DEBUG((EFI_D_ERROR, "SprdSdhciDxe: ADMA Err: 0x%08x | ADMA Ptr: 0x%08x\n",
                     MmioRead32(host->ioaddr + SDHCI_ADMA_ERROR),
-                    MmioRead32(host->ioaddr + SDHCI_ADMA_ADDRESS));
+                    MmioRead32(host->ioaddr + SDHCI_ADMA_ADDRESS)));
     }
 
-    DebugPrint(DEBUG_LEVEL_ERROR, DXE_DRIVER_NAME ": ==========================================\n");
+    DEBUG((EFI_D_INFO, "SprdSdhciDxe: ==========================================\n"));
+}
+
+VOID SdhciClearSetIrqs (
+    IN SDHCI_HOST *Host,
+    IN UINT32 Clear,
+    IN UINT32 Set
+    ) 
+{
+    UINT32 Ier;
+
+    Ier = MmioRead32 (Host->BaseAddress + SDHCI_INT_ENABLE);
+    Ier &= ~Clear;
+    Ier |= Set;
+    MmioWrite32 (Host->BaseAddress + SDHCI_INT_ENABLE, Ier);
+    MmioWrite32 (Host->BaseAddress + SDHCI_SIGNAL_ENABLE, Ier);
+}
+
+STATIC VOID SdhciUnmaskIrqs(IN SDHCI_HOST *Host, UINT32 Irqs)
+{
+	SdhciClearSetIrqs(Host, 0, Irqs);
+}
+
+STATIC VOID SdhciMaskIrqs(IN SDHCI_HOST *Host, UINT32 Irqs)
+{
+	SdhciClearSetIrqs(Host, Irqs, 0);
+}
+
+static inline UINT32 sdhci_readl(IN SDHCI_HOST *Host, INTN Reg)
+{
+	return MmioRead32(Host->ioaddr + Reg);
+}
+
+STATIC VOID SdhciSetCardDetection(IN SDHCI_HOST *Host, BOOLEAN Enable)
+{
+	UINT32 Present, Irqs;
+
+	if ((Host->Quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
+	    (Host->Mmc->Caps & MMC_CAP_NONREMOVABLE))
+		return;
+
+	Present = sdhci_readl(Host, SDHCI_PRESENT_STATE) &
+			      SDHCI_CARD_PRESENT;
+	Irqs = Present ? SDHCI_INT_CARD_REMOVE : SDHCI_INT_CARD_INSERT;
+
+	if (Enable)
+		SdhciUnmaskIrqs(Host, Irqs);
+	else
+		SdhciMaskIrqs(Host, Irqs);
+}
+
+STATIC VOID SdhciEnableCardDetection(IN SDHCI_HOST *Host)
+{
+	SdhciSetCardDetection(Host, TRUE);
+}
+
+STATIC VOID SdhciDisableCardDetection(IN SDHCI_HOST *Host)
+{
+	SdhciSetCardDetection(Host, FALSE);
 }
 
 EFI_STATUS

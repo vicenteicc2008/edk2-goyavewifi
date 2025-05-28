@@ -4,10 +4,13 @@
 #include <Library/IoLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/TimerLib.h>
+#include <Library/MemoryAllocationLib.h>
 
-#define SPRD_DMA_MAX     16
 #define SPRD_DMA_BASE    0xF5112000
 
+#define MISC_DYNAMIC_MINOR	255
+
+#define DMA_COPY_MINOR MISC_DYNAMIC_MINOR
 #define DMA_COPY_USER_MAX 4
 
 EFI_STATUS

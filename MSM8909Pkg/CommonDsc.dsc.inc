@@ -64,7 +64,7 @@
   ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
   ArmMmuLib|ArmPkg/Library/ArmMmuLib/ArmMmuBaseLib.inf
 
-  ResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
+  EfiResetSystemLib|MSM8909Pkg/Library/ResetSystemLib/ResetSystemLib.inf
 
   # KeypadDeviceHelperLib|MSM8909Pkg/Library/KeypadDeviceHelperLib/KeypadDeviceHelperLib.inf
   # KeypadDeviceImplLib|MSM8909Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf

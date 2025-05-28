@@ -16,9 +16,6 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/DevicePath.h>
 
-#define DXE_DRIVER_NAME "SprdSdhciDxe"
-
-#define SDHCI_USE_LEDS_CLASS
 
 #define CONFIG_GENERIC_MMC
 
@@ -31,8 +28,6 @@
 #define SDHCI_TIMEOUT_DIVIDE_VALUE	3
 
 #define REGULATOR_EVENT_ENABLE 		0x00
-
-#define MAX_TUNING_LOOP 40
 
 #define EMMC_BOOT_START_BLOCK (34)
 #define SD_BOOT_START_BLOCK (16)

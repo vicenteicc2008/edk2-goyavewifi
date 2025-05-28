@@ -1,9 +1,7 @@
 #/** @file
-# Reset System lib using PSCI hypervisor or secure monitor calls
+# Reset System lib to make it easy to port new platforms
 #
 # Copyright (c) 2008, Apple Inc. All rights reserved.<BR>
-# Copyright (c) 2014, Linaro Ltd. All rights reserved.<BR>
-# Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -17,25 +15,26 @@
 
 [Defines]
   INF_VERSION                    = 0x00010005
-  BASE_NAME                      = ResetSystemLib
-  FILE_GUID                      = A8F59B69-A105-41C7-8F5A-2C60DD7FD7AA
+  BASE_NAME                      = PandaBoardResetSystemLib
+  FILE_GUID                      = 781371a2-3fdd-41d4-96a1-7b34cbc9e895
   MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = EfiResetSystemLib
 
-[Sources]
+
+[Sources.common]
   ResetSystemLib.c
 
 [Packages]
+  MSM8909Pkg/MSM8909Pkg.dec
   ArmPkg/ArmPkg.dec
   MdePkg/MdePkg.dec
   EmbeddedPkg/EmbeddedPkg.dec
-  MSM8909Pkg/MSM8909Pkg.dec
 
+[Pcd.common]
+  gArmTokenSpaceGuid.PcdCpuResetAddress
+  gEmbeddedTokenSpaceGuid.PcdEmbeddedFdBaseAddress
+  
 [LibraryClasses]
-  BaseLib
-  IoLib
-  ArmLib
   DebugLib
-  UefiBootServicesTableLib
-  TimerLib
+ # PandaBoardSystemLib
