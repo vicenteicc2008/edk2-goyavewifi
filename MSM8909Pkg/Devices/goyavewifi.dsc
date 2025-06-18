@@ -30,3 +30,22 @@
   gMSM8909PkgTokenSpaceGuid.PcdMipiFrameBufferPixelBpp|16
 
   gMSM8909PkgTokenSpaceGuid.GpioBase|0xf5224000
+
+[PcdsDynamicDefault.common]
+  #
+  # Set video resolution for boot options and for text setup.
+  # PlatformDxe can set the former at runtime.
+  #
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|480
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|854
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|480
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution|854
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow|122
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn|24
+
+  [PcdsPatchableInModule]
+   # Console Resolution
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|480
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|854
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|24
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|122

@@ -30,6 +30,8 @@
 STATIC UINTN DebugQuirks = 0;
 STATIC UINTN DebugQuirks2;
 
+SPRD_GPIO *gSprdGpio;
+
 EFI_BLOCK_IO_MEDIA gSdMmc0 = {
   SIGNATURE_32('e','m','m','c'),            // MediaId
   FALSE,                                     // RemovableMedia
@@ -286,6 +288,10 @@ SprdSdhciDxeInit (
 	UINTN i;
 	UINT64 Lba;
 	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Initializing MMC/SD card\n"));
+
+	// Locate Gpio Protocol
+	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Locating Sprd Gpio Protocol\n"));
+    Status = gBS->LocateProtocol (&gSprdGpioProtocolGuid, NULL, (VOID *)&gSprdGpio);
 
 	// Install BlockIO Protocol
 	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Installing Block IO Protocol\n"));

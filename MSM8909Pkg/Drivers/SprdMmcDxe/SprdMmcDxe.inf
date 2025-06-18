@@ -29,6 +29,7 @@
   gEfiBlockIoProtocolGuid                       ## PRODUCES
   gEfiDevicePathProtocolGuid                    ## PRODUCES
   gEfiDriverDiagnostics2ProtocolGuid            ## SOMETIMES_PRODUCES
+  gSprdGpioProtocolGuid
 
 [BuildOptions.ARM]
   GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-overflow -Wno-unused-variable -Wno-unused-function
