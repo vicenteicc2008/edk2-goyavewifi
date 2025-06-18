@@ -28,9 +28,9 @@ VOID UartInit(VOID)
 {
   SerialPortInitialize();
 
-  DEBUG((EFI_D_INFO, "\nTianoCore on SC8830 (ARM)\n"));
+  DEBUG((EFI_D_INFO, "\nTianoCore on Spreadtrum SC8830 (ARM)\n"));
   DEBUG(
-      (EFI_D_INFO, "Firmware version %s built %a %a\n\n",
+      (EFI_D_INFO, "Sprd UEFI Firmware version %s built %a %a\n\n",
        (CHAR16 *)PcdGetPtr(PcdFirmwareVersionString), __TIME__, __DATE__));
 }
 

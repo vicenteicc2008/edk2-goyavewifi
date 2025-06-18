@@ -14,6 +14,7 @@ SprdSmemDxeInitialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTabl
   EFI_HANDLE Handle = NULL;
   EFI_STATUS Status;
 
+  DEBUG((EFI_D_INFO, "SprdSmemDxe: Initializing SMEM\n"));
 
   Status = gBS->InstallMultipleProtocolInterfaces(
       &Handle, &gSprdSmemProtocolGuid, gSMEM, NULL);

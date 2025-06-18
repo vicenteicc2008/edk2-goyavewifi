@@ -32,6 +32,7 @@
 [Guids]
 
 [Protocols]
+  gSprdDmaProtocolGuid
 
 [depex]
  TRUE

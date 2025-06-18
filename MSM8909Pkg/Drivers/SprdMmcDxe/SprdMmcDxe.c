@@ -19,15 +19,9 @@
 #define SDHCI_DMA_ADDRESS	0x00
 #define SDHCI_ARGUMENT2		SDHCI_DMA_ADDRESS
 
-#define SDHCI_INT_STATUS	0x30
-#define SDHCI_INT_ENABLE	0x34
-#define SDHCI_SIGNAL_ENABLE	0x38
-
 #define SDHCI_ADMA_ERROR	0x54
 #define SDHCI_ADMA_ADDRESS	0x58
 
-#define SDHCI_INT_CARD_INSERT	0x00000040
-#define SDHCI_INT_CARD_REMOVE	0x00000080
 #define MMC_CAP_NONREMOVABLE	(1 << 8)	/* Nonremovable e.g. eMMC */
 #define MMC_CAP_WAIT_WHILE_BUSY	(1 << 9)	/* Waits while card is busy */
 #define MMC_CAP_ERASE		(1 << 10)	/* Allow erase/trim commands */
@@ -81,104 +75,6 @@ struct MMC_HOST {
 	UINT32			Caps;
 };
 
-typedef struct {
-    EFI_PHYSICAL_ADDRESS ioaddr;  // Dirección base de los registros
-    UINT32 flags;                 // Bandera para ver si se usa ADMA
-	UINTN Quirks;
-	#define SDHCI_QUIRK_CLOCK_BEFORE_RESET			(1<<0)
-	/* Controller has bad caps bits, but really supports DMA */
-	#define SDHCI_QUIRK_FORCE_DMA				(1<<1)
-	/* Controller doesn't like to be reset when there is no card inserted. */
-	#define SDHCI_QUIRK_NO_CARD_NO_RESET			(1<<2)
-	/* Controller doesn't like clearing the power reg before a change */
-	#define SDHCI_QUIRK_SINGLE_POWER_WRITE			(1<<3)
-	/* Controller has flaky internal state so reset it on each ios change */
-	#define SDHCI_QUIRK_RESET_CMD_DATA_ON_IOS		(1<<4)
-	/* Controller has an unusable DMA engine */
-	#define SDHCI_QUIRK_BROKEN_DMA				(1<<5)
-	/* Controller has an unusable ADMA engine */
-	#define SDHCI_QUIRK_BROKEN_ADMA				(1<<6)
-	/* Controller can only DMA from 32-bit aligned addresses */
-	#define SDHCI_QUIRK_32BIT_DMA_ADDR			(1<<7)
-	/* Controller can only DMA chunk sizes that are a multiple of 32 bits */
-	#define SDHCI_QUIRK_32BIT_DMA_SIZE			(1<<8)
-	/* Controller can only ADMA chunks that are a multiple of 32 bits */
-	#define SDHCI_QUIRK_32BIT_ADMA_SIZE			(1<<9)
-	/* Controller needs to be reset after each request to stay stable */
-	#define SDHCI_QUIRK_RESET_AFTER_REQUEST			(1<<10)
-	/* Controller needs voltage and power writes to happen separately */
-	#define SDHCI_QUIRK_NO_SIMULT_VDD_AND_POWER		(1<<11)
-	/* Controller provides an incorrect timeout value for transfers */
-	#define SDHCI_QUIRK_BROKEN_TIMEOUT_VAL			(1<<12)
-	/* Controller has an issue with buffer bits for small transfers */
-	#define SDHCI_QUIRK_BROKEN_SMALL_PIO			(1<<13)
-	/* Controller does not provide transfer-complete interrupt when not busy */
-	#define SDHCI_QUIRK_NO_BUSY_IRQ				(1<<14)
-	/* Controller has unreliable card detection */
-	#define SDHCI_QUIRK_BROKEN_CARD_DETECTION		(1<<15)
-	/* Controller reports inverted write-protect state */
-	#define SDHCI_QUIRK_INVERTED_WRITE_PROTECT		(1<<16)
-	/* Controller has nonstandard clock management */
-	#define SDHCI_QUIRK_NONSTANDARD_CLOCK			(1<<17)
-	/* Controller does not like fast PIO transfers */
-	#define SDHCI_QUIRK_PIO_NEEDS_DELAY			(1<<18)
-	/* Controller losing signal/interrupt enable states after reset */
-	#define SDHCI_QUIRK_RESTORE_IRQS_AFTER_RESET		(1<<19)
-	/* Controller has to be forced to use block size of 2048 bytes */
-	#define SDHCI_QUIRK_FORCE_BLK_SZ_2048			(1<<20)
-	/* Controller cannot do multi-block transfers */
-	#define SDHCI_QUIRK_NO_MULTIBLOCK			(1<<21)
-	/* Controller can only handle 1-bit data transfers */
-	#define SDHCI_QUIRK_FORCE_1_BIT_DATA			(1<<22)
-	/* Controller needs 10ms delay between applying power and clock */
-	#define SDHCI_QUIRK_DELAY_AFTER_POWER			(1<<23)
-	/* Controller uses SDCLK instead of TMCLK for data timeouts */
-	#define SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK		(1<<24)
-	/* Controller reports wrong base clock capability */
-	#define SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN		(1<<25)
-	/* Controller cannot support End Attribute in NOP ADMA descriptor */
-	#define SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC		(1<<26)
-	/* Controller is missing device caps. Use caps provided by host */
-	#define SDHCI_QUIRK_MISSING_CAPS			(1<<27)
-	/* Controller uses Auto CMD12 command to stop the transfer */
-	#define SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12		(1<<28)
-	/* Controller doesn't have HISPD bit field in HI-SPEED SD card */
-	#define SDHCI_QUIRK_NO_HISPD_BIT			(1<<29)
-	/* Controller treats ADMA descriptors with length 0000h incorrectly */
-	#define SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC		(1<<30)
-	/* The read-only detection via SDHCI_PRESENT_STATE register is unstable */
-	#define SDHCI_QUIRK_UNSTABLE_RO_DETECT			(1<<31)
-	UINTN Quirks2;
-	#define SDHCI_QUIRK2_HOST_OFF_CARD_ON			(1<<0)
-	#define SDHCI_QUIRK2_HOST_NO_CMD23			(1<<1)
-	/* The system physically doesn't support 1.8v, even if the host does */
-	#define SDHCI_QUIRK2_NO_1_8_V				(1<<2)
-	#define SDHCI_QUIRK2_PRESET_VALUE_BROKEN		(1<<3)
-	/* Controller data timeout counter is x times long as spec defined */
-	#define SDHCI_QUIRK2_TIMEOUT_DIVIDE			(1<<5)
-	#define SDHCI_QUIRK2_USE_MAX_DISCARD_SIZE		(1<<7)
-	UINTN irq;		/* Device IRQ */
-	#define SDHCI_USE_SDMA		(1<<0)	/* Host is SDMA capable */
-	#define SDHCI_USE_ADMA		(1<<1)	/* Host is ADMA capable */
-	#define SDHCI_REQ_USE_DMA	(1<<2)	/* Use DMA for this req. */
-	#define SDHCI_DEVICE_DEAD	(1<<3)	/* Device unresponsive */
-	#define SDHCI_SDR50_NEEDS_TUNING (1<<4)	/* SDR50 needs tuning */
-	#define SDHCI_NEEDS_RETUNING	(1<<5)	/* Host needs retuning */
-	#define SDHCI_AUTO_CMD12	(1<<6)	/* Auto CMD12 support */
-	#define SDHCI_AUTO_CMD23	(1<<7)	/* Auto CMD23 support */
-	#define SDHCI_PV_ENABLED	(1<<8)	/* Preset value enabled */
-	#define SDHCI_SDIO_IRQ_ENABLED	(1<<9)	/* SDIO irq enabled */
-	#define SDHCI_HS200_NEEDS_TUNING (1<<10)	/* HS200 needs tuning */
-	#define SDHCI_USING_RETUNING_TIMER (1<<11)	/* Host is using a retuning timer for the card */
-	UINTN version;
-	UINTN max_clk;	/* Max possible freq (MHz) */
-	UINTN timeout_clk;	/* Timeout freq (KHz) */
-	UINTN clk_mul;	/* Clock Muliplier value */
-	UINTN clock;
-	UINT8 pwr;
-	UINTN BaseAddress;
-	struct MMC_HOST *Mmc;
-} SDHCI_HOST;
 
 STATIC VOID SdhciDumpRegs(SDHCI_HOST *host)
 {
@@ -244,7 +140,7 @@ STATIC VOID SdhciMaskIrqs(IN SDHCI_HOST *Host, UINT32 Irqs)
 	SdhciClearSetIrqs(Host, Irqs, 0);
 }
 
-static inline UINT32 sdhci_readl(IN SDHCI_HOST *Host, INTN Reg)
+static inline UINT32 SdhciReadl(IN SDHCI_HOST *Host, INTN Reg)
 {
 	return MmioRead32(Host->ioaddr + Reg);
 }
@@ -257,7 +153,7 @@ STATIC VOID SdhciSetCardDetection(IN SDHCI_HOST *Host, BOOLEAN Enable)
 	    (Host->Mmc->Caps & MMC_CAP_NONREMOVABLE))
 		return;
 
-	Present = sdhci_readl(Host, SDHCI_PRESENT_STATE) &
+	Present = SdhciReadl(Host, SDHCI_PRESENT_STATE) &
 			      SDHCI_CARD_PRESENT;
 	Irqs = Present ? SDHCI_INT_CARD_REMOVE : SDHCI_INT_CARD_INSERT;
 
@@ -275,6 +171,105 @@ STATIC VOID SdhciEnableCardDetection(IN SDHCI_HOST *Host)
 STATIC VOID SdhciDisableCardDetection(IN SDHCI_HOST *Host)
 {
 	SdhciSetCardDetection(Host, FALSE);
+}
+
+STATIC VOID SdhciReset(IN SDHCI_HOST *Host, IN UINT8 Mask) {
+  UINT32 Timeout;
+  UINT32 Ier = 0;
+
+  if (Host->Quirks & SDHCI_QUIRK_NO_CARD_NO_RESET) {
+    if (!(SdhciReadl(Host, SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT)) {
+      return;
+    }
+  }
+
+  if (Host->Quirks & SDHCI_QUIRK_RESTORE_IRQS_AFTER_RESET) {
+    Ier = SdhciReadl(Host, SDHCI_INT_ENABLE);
+  }
+
+  if (Host->Ops->PlatformResetEnter) {
+    Host->Ops->PlatformResetEnter(Host, Mask);
+  }
+
+  SdhciWriteb(Host, Mask | 0x08, SDHCI_SOFTWARE_RESET);
+
+  if (Mask & SDHCI_RESET_ALL) {
+    Host->clock = 0;
+  }
+
+  /* Esperar un máximo de 100 ms */
+  Timeout = 100;
+
+  /* El hardware limpia el bit cuando termina */
+  while (SdhciReadb(Host, SDHCI_SOFTWARE_RESET) & Mask) {
+    if (Timeout == 0) {
+      DEBUG((EFI_D_ERROR, "%a: Reset 0x%x never completed.\n",
+             MmcHostname(Host->Mmc), (INT32)Mask));
+      SdhciDumpRegs(Host);
+      return;
+    }
+    Timeout--;
+    gBS->Stall(1000); // Pausa de 1 ms
+  }
+
+  if (Host->Ops->PlatformResetExit) {
+    Host->Ops->PlatformResetExit(Host, Mask);
+  }
+
+  if (Host->Quirks & SDHCI_QUIRK_RESTORE_IRQS_AFTER_RESET) {
+    SdhciClearSetIrqs(Host, SDHCI_INT_ALL_MASK, Ier);
+  }
+
+  if (Host->flags & (SDHCI_USE_SDMA | SDHCI_USE_ADMA)) {
+    if ((Host->Ops->EnableDma) && (Mask & SDHCI_RESET_ALL)) {
+      Host->Ops->EnableDma(Host);
+    }
+  }
+}
+
+STATIC VOID sdhci_set_ios(struct MMC_HOST *mmc, struct mmc_ios *ios);
+
+STATIC
+VOID
+SdhciInit (
+  IN SDHCI_HOST *Host,
+  INTN Soft
+)
+{
+	if (Soft)
+		SdhciReset(Host, SDHCI_RESET_CMD|SDHCI_RESET_DATA);
+	else
+		SdhciReset(Host, SDHCI_RESET_ALL);
+	SdhciClearSetIrqs(Host, SDHCI_INT_ALL_MASK,
+		SDHCI_INT_BUS_POWER | SDHCI_INT_DATA_END_BIT |
+		SDHCI_INT_DATA_CRC | SDHCI_INT_DATA_TIMEOUT | SDHCI_INT_INDEX |
+		SDHCI_INT_END_BIT | SDHCI_INT_CRC | SDHCI_INT_TIMEOUT |
+		SDHCI_INT_DATA_END | SDHCI_INT_RESPONSE);
+	
+	if (Soft) {
+		/* force clock reconfiguration */
+		Host->clock = 0;
+		// sdhci_set_ios(Host->mmc, &Host->mmc->ios);
+	}
+	
+}
+
+STATIC VOID SdhciActivateLed(IN SDHCI_HOST *Host)
+{
+	UINT8 Ctrl;
+
+	Ctrl = SdhciReadb(Host, SDHCI_HOST_CONTROL);
+	Ctrl |= SDHCI_CTRL_LED;
+	SdhciWriteb(Host, Ctrl, SDHCI_HOST_CONTROL);
+}
+
+STATIC VOID SdhciDeactivateLed(IN SDHCI_HOST *Host)
+{
+	UINT8 Ctrl;
+
+	Ctrl = SdhciReadb(Host, SDHCI_HOST_CONTROL);
+	Ctrl &= ~SDHCI_CTRL_LED;
+	SdhciWriteb(Host, Ctrl, SDHCI_HOST_CONTROL);
 }
 
 EFI_STATUS

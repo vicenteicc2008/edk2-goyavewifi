@@ -26,3 +26,15 @@
   CacheMaintenanceLib
   DxeServicesTableLib
   IoLib
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Wno-unused-variable -Wno-unused-function
+
+[Guids]
+
+[Protocols]
+  gEfiCpuArchProtocolGuid
+  gSprdClockProtocolGuid
+
+[depex]
+ TRUE

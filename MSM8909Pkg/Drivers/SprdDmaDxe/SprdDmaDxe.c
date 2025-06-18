@@ -1,3 +1,4 @@
+
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
@@ -5,8 +6,14 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/TimerLib.h>
 #include <Library/MemoryAllocationLib.h>
+#include <Library/DmaLib.h>
+
+#include <Protocol/HardwareInterrupt.h>
 
 #define SPRD_DMA_BASE    0xF5112000
+#define SPRD_DMA_SIZE	 0x4000
+
+#define SPRD_DMA_MAX     10
 
 #define MISC_DYNAMIC_MINOR	255
 
@@ -20,6 +27,6 @@ SprdDmaDxeInitialize (
   IN EFI_SYSTEM_TABLE *SystemTable)
 {
 	
-	DEBUG((EFI_D_INFO, "Initializing Spreadtrum DMA Driver\n"));
+	DEBUG((EFI_D_INFO, "SprdDmaDxe: Initializing Spreadtrum DMA Driver\n"));
 	return EFI_SUCCESS;
 }

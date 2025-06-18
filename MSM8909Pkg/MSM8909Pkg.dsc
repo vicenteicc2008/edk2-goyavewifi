@@ -198,6 +198,8 @@
   EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
 
+  EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
+
   MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
   MSM8909Pkg/Drivers/ConSplitterDxe/ConSplitterDxe.inf
   MSM8909Pkg/Drivers/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
@@ -217,8 +219,8 @@
   # SoC Drivers
   #
   MSM8909Pkg/Drivers/SprdGpioDxe/SprdGpioDxe.inf
+  MSM8909Pkg/Drivers/SprdClockDxe/SprdClockDxe.inf
   MSM8909Pkg/Drivers/SprdI2CDxe/SprdI2CDxe.inf
-  # MSM8909Pkg/Drivers/SprdClockDxe/SprdClockDxe.inf
   MSM8909Pkg/Drivers/SprdDmaDxe/SprdDmaDxe.inf
   # MSM8909Pkg/Drivers/SprdMmcDxe/SprdMmcDxe.inf
 
