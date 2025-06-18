@@ -3,22 +3,24 @@
 #include <Library/IoLib.h>
 #include <Library/TimerLib.h>
 #include <Library/BaseMemoryLib.h>
-#include <Protocol/SprdGpio.h>
 
 #include "I2C.h"
+
+#include <Protocol/SprdGpio.h>
+#include <Protocol/SprdI2C.h>
 
 SPRD_GPIO *gSprdGpio;
 
 #define I2C_WAIT_INT                                                  \
 {                                                                     \
-    timetick = SYSTEM_CURRENT_CLOCK;                                  \
+    Timetick = SYSTEM_CURRENT_CLOCK;                                  \
     while (g_wait_i2c_int_flag)                                       \
     {                                                                 \
-        if ((SYSTEM_CURRENT_CLOCK - timetick) >= g_i2c_timeout)       \
+        if ((SYSTEM_CURRENT_CLOCK - Timetick) >= g_i2c_timeout)       \
         {                                                             \
-            if(ERR_I2C_NONE == ret_value)                             \
+            if(EFI_SUCCESS == ret_value)                             \
             {                                                         \
-                ret_value = ERR_I2C_INT_TIMEOUT;                      \
+                ret_value = EFI_TIMEOUT;                      \
             }                                                         \
             break;                                                    \
         }                                                             \
@@ -28,14 +30,14 @@ SPRD_GPIO *gSprdGpio;
 
 #define I2C_WAIT_ACK                                                  \
 {                                                                     \
-    timetick = SYSTEM_CURRENT_CLOCK;                                  \
-    while(ptr->cmd & I2CCMD_ACK)                                      \
+    Timetick = SYSTEM_CURRENT_CLOCK;                                  \
+    while(ptr->Cmd & I2CCMD_ACK)                                      \
     {                                                                 \
-        if ((SYSTEM_CURRENT_CLOCK - timetick) >= g_i2c_timeout)       \
+        if ((SYSTEM_CURRENT_CLOCK - Timetick) >= g_i2c_timeout)       \
         {                                                             \
-            if(ERR_I2C_NONE == ret_value)                             \
+            if(EFI_SUCCESS == ret_value)                             \
             {                                                         \
-                ret_value = ERR_I2C_ACK_TIMEOUT;                      \
+                ret_value = EFI_TIMEOUT;                      \
             }                                                         \
             break;                                                    \
         }                                                             \
@@ -70,134 +72,162 @@ UINT32 ChipGetAPBClk(VOID)
     return ARM_CLK_26M;
 }
 
-ERR_I2C_E I2C_SetSCLclk(UINT32 freq)
+EFI_STATUS
+I2C_SetSCLclk (
+  IN UINT32 Frequency
+  )
 {
-    UINT32 APB_clk,i2c_dvd;
-    
-    volatile I2C_CTL_REG_T *ptr = (volatile I2C_CTL_REG_T *)I2C_BASE;
+  volatile I2C_CTL_REG_T *I2cRegs;
+  UINT32 ApbClk;
+  UINT32 Divider;
 
-    ASSERT(freq > 0);
-    ASSERT(g_i2c_open_flag);
+  if (Frequency == 0 || !g_i2c_open_flag) {
+    return EFI_INVALID_PARAMETER;
+  }
 
-    APB_clk= ChipGetAPBClk();
-    i2c_dvd=APB_clk/(4*freq)-1;
+  I2cRegs = (volatile I2C_CTL_REG_T *)I2C_BASE;
+  ApbClk  = ChipGetAPBClk();
 
-    ptr->div0=(UINT16)(i2c_dvd & 0xffff);
-    ptr->div1=(UINT16)(i2c_dvd>>16);
+  if (ApbClk == 0 || Frequency > (ApbClk / 4)) {
+    return EFI_UNSUPPORTED;
+  }
 
-    g_i2c_timeout = I2C_TIMEOUT_FACTOR / (freq);
-    
-    if(g_i2c_timeout < 2)
-        g_i2c_timeout = 2;
-    //g_i2c_timeout will be changed according I2C frequency
-    
-    return ERR_I2C_NONE;
-     
-      
+  Divider = ApbClk / (4 * Frequency);
+  if (Divider > 0) {
+    Divider -= 1;
+  }
+
+  I2cRegs->div0 = (UINT16)(Divider & 0xFFFF);
+  I2cRegs->div1 = (UINT16)(Divider >> 16);
+
+  g_i2c_timeout = I2C_TIMEOUT_FACTOR / Frequency;
+  if (g_i2c_timeout < 2) {
+    g_i2c_timeout = 2;
+  }
+
+  return EFI_SUCCESS;
 }
 
-ERR_I2C_E I2C_Init(UINT32 freq)
-{    
-    /*SC8810 use IIC1 for sensor init, but befoe SC8810 all chip use
-    IIC0 for sensor init. IIC1 use bit29 for Clock enable.
-    */
-    volatile I2C_CTL_REG_T *ptr = (volatile I2C_CTL_REG_T *)I2C_BASE;
+EFI_STATUS
+I2C_Init (
+  IN UINT32 FrequencyKhz
+  )
+{
+  volatile I2C_CTL_REG_T *I2cRegs;
+  UINT32 FrequencyHz;
 
-    freq*=1000;
-    ASSERT (freq > 0);
+  if (FrequencyKhz == 0) {
+    return EFI_INVALID_PARAMETER;
+  }
 
-    g_wait_i2c_int_flag = TRUE;
-    g_i2c_open_flag=TRUE;
+  I2cRegs = (volatile I2C_CTL_REG_T *)I2C_BASE;
+  FrequencyHz = FrequencyKhz * 1000;
 
-    ptr->rst = BIT_0;//why reset
-    ptr->ctl &= ~(I2CCTL_EN);//you must first disable i2c module then change clock  
-    ptr->ctl &= ~(I2CCTL_IE);
-    ptr->ctl &= ~(I2CCTL_CMDBUF_EN);
+  g_wait_i2c_int_flag = TRUE;
+  g_i2c_open_flag = TRUE;
 
-    I2C_SetSCLclk(freq);
+  // Reset I2C module
+  I2cRegs->rst = BIT_0;
 
-    CHIP_REG_OR(I2C_CTL, (I2CCTL_IE | I2CCTL_EN));
+  // Disable I2C module before reconfiguration
+  I2cRegs->ctl &= ~(I2CCTL_EN | I2CCTL_IE | I2CCTL_CMDBUF_EN);
 
-     //Clear I2C int
-    CHIP_REG_OR(I2C_CMD, I2CCMD_INT_ACK); 
-   
-    return ERR_I2C_NONE; 
+  // Configure clock
+  I2C_SetSCLclk(FrequencyHz);
+
+  // Enable I2C and Interrupt
+  MmioOr32(I2C_CTL, (I2CCTL_IE | I2CCTL_EN));
+
+  // Acknowledge and clear any pending interrupt
+  MmioOr32(I2C_CMD, I2CCMD_INT_ACK);
+
+  return EFI_SUCCESS;
 }
 
-UINT32 I2C_GetSCLclk(VOID)
+UINT32
+I2C_GetSCLclk (
+  VOID
+  )
 {
-    UINT32 APB_clk,i2c_dvd,freq;
-    
-    volatile I2C_CTL_REG_T *ptr = (I2C_CTL_REG_T *)I2C_BASE;
+  volatile I2C_CTL_REG_T *I2cRegs;
+  UINT32 ApbClk;
+  UINT32 Divider;
+  UINT32 Frequency;
 
-    ASSERT(g_i2c_open_flag);
+  if (!g_i2c_open_flag) {
+    return 0; // O podrías retornar un valor reservado para error si lo defines
+  }
 
-    APB_clk= ChipGetAPBClk();
+  I2cRegs = (volatile I2C_CTL_REG_T *)I2C_BASE;
+  ApbClk  = ChipGetAPBClk();
 
-    i2c_dvd=((ptr->div1)<<16)|(ptr->div0);
+  Divider = ((UINT32)(I2cRegs->div1) << 16) | I2cRegs->div0;
 
-    freq=APB_clk/(4*(i2c_dvd+1));
+  if (Divider == 0xFFFFFFFF || Divider == 0) {
+    return 0;
+  }
 
+  Frequency = ApbClk / (4 * (Divider + 1));
 
-    return freq;
-
+  return Frequency;
 }
 
-ERR_I2C_E I2C_WriteCmd(UINT8 addr,UINT8 command, BOOLEAN ack_en)
+EFI_STATUS
+I2C_WriteCmd(UINT8 Addr, UINT8 Command, BOOLEAN Ack_en)
 {
-    volatile UINT32 timetick = 0; 
-    volatile UINT32 cmd = 0;
+    volatile UINT32 Timetick = 0; 
+    volatile UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T * ptr = (volatile I2C_CTL_REG_T *)I2C_BASE;
-    UINT32   ret_value = ERR_I2C_NONE;
+    UINT32   ret_value = EFI_SUCCESS;
 
     ASSERT(g_i2c_open_flag);
     ASSERT(g_i2c_timeout > 0);
     
-    cmd = ((UINT32)addr)<<8;
-    cmd = cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
-    ptr->cmd = cmd; 
+    Cmd = ((UINT32)Addr)<<8;
+    Cmd = Cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
+    ptr->Cmd = Cmd; 
 
     I2C_WAIT_INT
     
     I2C_CLEAR_INT
     
     //check ACK
-    if(ack_en)
+    if(Ack_en)
     {
         I2C_WAIT_ACK
     }
 
-    cmd = ((UINT32)command)<<8;
-    cmd = cmd | I2CCMD_WRITE | I2CCMD_STOP;//send command
-    ptr->cmd = cmd; 
+    Cmd = ((UINT32)Command)<<8;
+    Cmd = Cmd | I2CCMD_WRITE | I2CCMD_STOP;//send command
+    ptr->Cmd = Cmd; 
 
     I2C_WAIT_INT
        
     I2C_CLEAR_INT  
 
     //check ACK
-    if(ack_en)
+    if(Ack_en)
     {
         I2C_WAIT_ACK
     }
 
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
             
 }
 
 ERR_I2C_E I2C_WriteData(UINT8 addr,UINT8 data, BOOLEAN ack_en)
 {
-    volatile UINT32 timetick = 0; 
-    volatile UINT32 cmd = 0;
+    volatile UINT32 Timetick = 0; 
+    volatile UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T * ptr = (volatile I2C_CTL_REG_T *)I2C_BASE;
-    UINT32   ret_value = ERR_I2C_NONE;
+    UINT32   ret_value = EFI_SUCCESS;
 
     ASSERT(g_i2c_open_flag);
     ASSERT(g_i2c_timeout > 0);
     
-    cmd = ((UINT32)addr)<<8;
-    cmd = cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
-    ptr->cmd = cmd; 
+    Cmd = ((UINT32)addr)<<8;
+    Cmd = Cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
+    ptr->Cmd = Cmd; 
 
     I2C_WAIT_INT
     
@@ -211,7 +241,7 @@ ERR_I2C_E I2C_WriteData(UINT8 addr,UINT8 data, BOOLEAN ack_en)
 
     data = ((UINT32)data)<<8;
     data = data | I2CCMD_WRITE | I2CCMD_STOP;//send command
-    ptr->cmd = data; 
+    ptr->Cmd = data; 
 
     I2C_WAIT_INT
        
@@ -223,24 +253,24 @@ ERR_I2C_E I2C_WriteData(UINT8 addr,UINT8 data, BOOLEAN ack_en)
         I2C_WAIT_ACK
     }
 
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
             
 }
 
 ERR_I2C_E I2C_ReadCmd(UINT8 addr,UINT8 *pCmd, BOOLEAN ack_en)
 {
-    volatile UINT32 timetick = 0; 
-    volatile UINT32 cmd = 0;
+    volatile UINT32 Timetick = 0; 
+    volatile UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T * ptr = (volatile I2C_CTL_REG_T *)I2C_BASE;
-    UINT32   ret_value = ERR_I2C_NONE;
+    UINT32   ret_value = EFI_SUCCESS;
     
     ASSERT(NULL != pCmd);
     ASSERT(g_i2c_open_flag);
     ASSERT(g_i2c_timeout > 0);
 
-    cmd = ((UINT32)(addr|I2C_READ_BIT))<<8;
-    cmd = cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
-    ptr->cmd = cmd; 
+    Cmd = ((UINT32)(addr|I2C_READ_BIT))<<8;
+    Cmd = Cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
+    ptr->Cmd = Cmd; 
 
     I2C_WAIT_INT
            
@@ -252,36 +282,36 @@ ERR_I2C_E I2C_ReadCmd(UINT8 addr,UINT8 *pCmd, BOOLEAN ack_en)
         I2C_WAIT_ACK
     }
 
-    cmd = I2CCMD_READ | I2CCMD_STOP | I2CCMD_TX_ACK;
-    ptr->cmd = cmd;
+    Cmd = I2CCMD_READ | I2CCMD_STOP | I2CCMD_TX_ACK;
+    ptr->Cmd = Cmd;
      
     I2C_WAIT_INT
        
     I2C_CLEAR_INT  
 
 
-    *pCmd=(UINT8)((ptr->cmd)>>8);
+    *pCmd=(UINT8)((ptr->Cmd)>>8);
 
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
-UINT32   ret_value = ERR_I2C_NONE;
-volatile UINT32 timetick = 0; 
+UINT32   ret_value = EFI_SUCCESS;
+volatile UINT32 Timetick = 0; 
 
 ERR_I2C_E I2C_WriteCmdArr(UINT8 addr, UINT8 *pCmd, UINT32 len, BOOLEAN ack_en)
 {
     volatile UINT32 curtime = 0; 	
     volatile UINT32 i = 0;
-    volatile UINT32 cmd = 0;
+    volatile UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T * ptr = (volatile I2C_CTL_REG_T *)I2C_BASE;
     
     ASSERT(NULL != pCmd);
     ASSERT(g_i2c_open_flag);
     ASSERT(g_i2c_timeout > 0);
     
-    cmd = ((UINT32)addr)<<8;
-    cmd = cmd | I2CCMD_START | I2CCMD_WRITE ;//send device address 0x9824
-    ptr->cmd = cmd; 
+    Cmd = ((UINT32)addr)<<8;
+    Cmd = Cmd | I2CCMD_START | I2CCMD_WRITE ;//send device address 0x9824
+    ptr->Cmd = Cmd; 
 
     I2C_WAIT_INT		
     
@@ -295,13 +325,13 @@ ERR_I2C_E I2C_WriteCmdArr(UINT8 addr, UINT8 *pCmd, UINT32 len, BOOLEAN ack_en)
 
     for(i=0;i<len;i++)
     {
-        cmd = ((UINT32)pCmd[i])<<8;
+        Cmd = ((UINT32)pCmd[i])<<8;
         if(i== (len-1))     
-            cmd = cmd | I2CCMD_WRITE | I2CCMD_STOP;//send command
+            Cmd = Cmd | I2CCMD_WRITE | I2CCMD_STOP;//send command
         else
-            cmd = cmd | I2CCMD_WRITE ;
+            Cmd = Cmd | I2CCMD_WRITE ;
 
-        ptr->cmd = cmd; 
+        ptr->Cmd = Cmd; 
 
         I2C_WAIT_INT
            
@@ -320,19 +350,19 @@ ERR_I2C_E I2C_WriteCmdArr(UINT8 addr, UINT8 *pCmd, UINT32 len, BOOLEAN ack_en)
 
 ERR_I2C_E I2C_ReadCmdArr(UINT8 addr, UINT8 *pCmd, UINT32 len,BOOLEAN ack_en )
 {
-    volatile UINT32 timetick = 0; 
+    volatile UINT32 Timetick = 0; 
     volatile UINT32 i = 0;
-    volatile UINT32 cmd = 0;
+    volatile UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T * ptr = (volatile I2C_CTL_REG_T *)I2C_BASE;
-    UINT32   ret_value = ERR_I2C_NONE;
+    UINT32   ret_value = EFI_SUCCESS;
     
     ASSERT(NULL !=pCmd );
     ASSERT(g_i2c_open_flag);
     ASSERT(g_i2c_timeout > 0);
 
-    cmd = ((UINT32)(addr|I2C_READ_BIT))<<8;
-    cmd = cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
-    ptr->cmd = cmd; 
+    Cmd = ((UINT32)(addr|I2C_READ_BIT))<<8;
+    Cmd = Cmd | I2CCMD_START | I2CCMD_WRITE;//send device address
+    ptr->Cmd = Cmd; 
 
     I2C_WAIT_INT
            
@@ -347,20 +377,20 @@ ERR_I2C_E I2C_ReadCmdArr(UINT8 addr, UINT8 *pCmd, UINT32 len,BOOLEAN ack_en )
     for(i=0;i<len;i++)
     {
         if(i<len-1)
-            cmd = I2CCMD_READ;  // I2CCMD_READ|I2CCMD_TX_ACK;
+            Cmd = I2CCMD_READ;  // I2CCMD_READ|I2CCMD_TX_ACK;
         else
-            cmd = I2CCMD_READ|I2CCMD_STOP|I2CCMD_TX_ACK;
+            Cmd = I2CCMD_READ|I2CCMD_STOP|I2CCMD_TX_ACK;
 
-        ptr->cmd = cmd;
+        ptr->Cmd = Cmd;
 
         I2C_WAIT_INT
                    
         I2C_CLEAR_INT   
 
-        pCmd[i] = (UINT8)((ptr->cmd)>>8);
+        pCmd[i] = (UINT8)((ptr->Cmd)>>8);
     }
 
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 extern const I2C_BASE_INFO __i2c_base_info[I2C_BUS_MAX];
@@ -419,12 +449,12 @@ ERR_I2C_E __I2C_PHY_SetSCL (UINT32 phy_id, UINT32 freq)
         g_i2c_timeout = 2;
     }
 
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 ERR_I2C_E __I2C_PHY_SetPort (UINT32 port)
 {
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 
@@ -446,33 +476,33 @@ ERR_I2C_E I2C_PHY_ControlInit_V0 (UINT32 phy_id, UINT32 freq, UINT32 port)
 
     ptr->ctl |=  (I2CCTL_IE | I2CCTL_EN);
     //Clear I2C int
-    ptr->cmd &= ~ (I2CCMD_INT_ACK);
+    ptr->Cmd &= ~ (I2CCMD_INT_ACK);
         
     DEBUG((EFI_D_ERROR, "[IIC DRV:]I2C_PHY_ControlInit_V0: freq=%d, port=%d", freq, port));
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 ERR_I2C_E I2C_PHY_StartBus_V0 (UINT32 phy_id, UINT8 addr, BOOLEAN rw, BOOLEAN ack_en)
 {
-    UINT32 timetick = 0;
-    UINT32 cmd = 0;
+    UINT32 Timetick = 0;
+    UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T *ptr = (volatile I2C_CTL_REG_T *) __I2C_PHY_GetBase (phy_id);
-    UINT32   ret_value = ERR_I2C_NONE;
+    UINT32   ret_value = EFI_SUCCESS;
 
     if (rw)
     {
         /*read cmd*/
-        cmd = ( (UINT32) (addr |0x1)) <<8;
+        Cmd = ( (UINT32) (addr |0x1)) <<8;
     }
     else
     {
         /*write cmd*/
-        cmd = ( (UINT32) addr) <<8;
+        Cmd = ( (UINT32) addr) <<8;
     }
 
-    cmd = cmd | I2CCMD_START | I2CCMD_WRITE;
-    DEBUG((EFI_D_ERROR, "[IIC DRV:]I2C_PHY_StartBus_V0: cmd=%x", cmd));
-    ptr->cmd = cmd;
+    Cmd = Cmd | I2CCMD_START | I2CCMD_WRITE;
+    DEBUG((EFI_D_ERROR, "[IIC DRV:]I2C_PHY_StartBus_V0: Cmd=%x", Cmd));
+    ptr->Cmd = Cmd;
     I2C_WAIT_INT
     I2C_CLEAR_INT
 
@@ -482,29 +512,29 @@ ERR_I2C_E I2C_PHY_StartBus_V0 (UINT32 phy_id, UINT8 addr, BOOLEAN rw, BOOLEAN ac
         I2C_WAIT_ACK
     }
 
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 ERR_I2C_E I2C_PHY_WriteBytes_V0 (UINT32 phy_id, UINT8 *pCmd, UINT32 len, BOOLEAN ack_en, BOOLEAN no_stop)
 {
-    UINT32 timetick = 0;
+    UINT32 Timetick = 0;
     UINT32 i = 0;
-    UINT32 cmd = 0;
+    UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T *ptr = (volatile I2C_CTL_REG_T *) __I2C_PHY_GetBase (phy_id);
-    UINT32   ret_value = ERR_I2C_NONE;
+    UINT32   ret_value = EFI_SUCCESS;
 
     for (i=0; i<len; i++)
     {
-        cmd = ( (UINT32) pCmd[i]) <<8;
-        cmd = cmd | I2CCMD_WRITE ;
+        Cmd = ( (UINT32) pCmd[i]) <<8;
+        Cmd = Cmd | I2CCMD_WRITE ;
 
         if ( (i== (len-1)) && (!no_stop))
         {
-            cmd = cmd | I2CCMD_STOP;
+            Cmd = Cmd | I2CCMD_STOP;
         }
 
-        ptr->cmd = cmd;
-        DEBUG((EFI_D_ERROR, "[IIC DRV:]I2C_PHY_WriteBytes_V0: cmd=%x", cmd));
+        ptr->Cmd = Cmd;
+        DEBUG((EFI_D_ERROR, "[IIC DRV:]I2C_PHY_WriteBytes_V0: Cmd=%x", Cmd));
         I2C_WAIT_INT
         I2C_CLEAR_INT
 
@@ -521,26 +551,26 @@ ERR_I2C_E I2C_PHY_WriteBytes_V0 (UINT32 phy_id, UINT8 *pCmd, UINT32 len, BOOLEAN
 
 ERR_I2C_E I2C_PHY_ReadBytes_V0 (UINT32 phy_id, UINT8 *pCmd, UINT32 len, BOOLEAN ack_en)
 {
-    UINT32 timetick = 0;
+    UINT32 Timetick = 0;
     UINT32 i = 0;
-    UINT32 cmd = 0;
+    UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T *ptr = (volatile I2C_CTL_REG_T *) __I2C_PHY_GetBase (phy_id);
-    UINT32   ret_value = ERR_I2C_NONE;
+    UINT32   ret_value = EFI_SUCCESS;
 
     for (i=0; i<len; i++)
     {
-        cmd = I2CCMD_READ; /*FIXME |I2CCMD_TX_ACK;*/
+        Cmd = I2CCMD_READ; /*FIXME |I2CCMD_TX_ACK;*/
 
         if (i== (len-1))
         {
-            cmd = cmd |I2CCMD_STOP |I2CCMD_TX_ACK;
+            Cmd = Cmd |I2CCMD_STOP |I2CCMD_TX_ACK;
         }
 
-        ptr->cmd = cmd;
-        DEBUG((EFI_D_ERROR, "[IIC DRV:]I2C_PHY_ReadBytes_V0: cmd=%x", cmd));
+        ptr->Cmd = Cmd;
+        DEBUG((EFI_D_ERROR, "[IIC DRV:]I2C_PHY_ReadBytes_V0: Cmd=%x", Cmd));
         I2C_WAIT_INT
         I2C_CLEAR_INT
-        pCmd[i] = (UINT8) ( (ptr->cmd) >>8);
+        pCmd[i] = (UINT8) ( (ptr->Cmd) >>8);
     }
 
     return ret_value;
@@ -548,25 +578,25 @@ ERR_I2C_E I2C_PHY_ReadBytes_V0 (UINT32 phy_id, UINT8 *pCmd, UINT32 len, BOOLEAN 
 
 ERR_I2C_E I2C_PHY_StopBus_V0 (UINT32 phy_id)
 {
-    UINT32 timetick = 0;
-    UINT32 cmd = 0;
+    UINT32 Timetick = 0;
+    UINT32 Cmd = 0;
     volatile I2C_CTL_REG_T *ptr = (volatile I2C_CTL_REG_T *) __I2C_PHY_GetBase (phy_id);
-    UINT32   ret_value = ERR_I2C_NONE;
-    cmd = I2CCMD_STOP;
-    ptr->cmd = cmd;
+    UINT32   ret_value = EFI_SUCCESS;
+    Cmd = I2CCMD_STOP;
+    ptr->Cmd = Cmd;
     I2C_WAIT_INT
     I2C_CLEAR_INT
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 ERR_I2C_E I2C_PHY_SendACK_V0 (UINT32 phy_id)
 {
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 ERR_I2C_E I2C_PHY_GetACK_V0 (UINT32 phy_id)
 {
-    return ERR_I2C_NONE;
+    return EFI_SUCCESS;
 }
 
 I2C_PHY_FUN phy_fun_v0 = {
@@ -609,23 +639,19 @@ const I2C_BASE_INFO __i2c_base_info[I2C_BUS_MAX] =
 
 EFI_STATUS
 EFIAPI
-I2CInit (VOID)
-{
-  DEBUG((EFI_D_INFO, "Initializing I2C\n"));
-  return EFI_SUCCESS;
-}
-
-EFI_STATUS
-EFIAPI
 InitI2CDriver (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE *SystemTable)
 {
+  EFI_HANDLE      Handle = NULL;
   EFI_STATUS Status;
 
   Status = gBS->LocateProtocol (&gSprdGpioProtocolGuid, NULL, (VOID *)&gSprdGpio);
 
-  I2CInit();
+  I2C_Init(0);
+
+  Status = gBS->InstallMultipleProtocolInterfaces(&Handle, &gSprdI2cProtocolGuid, NULL);
+  ASSERT_EFI_ERROR(Status);
 
   DEBUG((EFI_D_INFO, "Initializing Spreadtrum I2C\n"));
   return EFI_SUCCESS;

@@ -25,7 +25,7 @@
 
 [Protocols]
   gSprdGpioProtocolGuid
-  # gEfiSprdI2CProtocolGuid
+  gSprdI2cProtocolGuid
 
 [Depex]
   TRUE

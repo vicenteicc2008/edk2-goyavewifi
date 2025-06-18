@@ -156,7 +156,7 @@
 
 
 # Make it so ConOut will choose what's best at startup 
-  [PcdsDynamicDefault.common]
+[PcdsDynamicDefault.common]
   gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|1024 # /8 = column
   gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|600 #/19 = row
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|1024
@@ -207,8 +207,8 @@
   EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
 
   MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
-  MSM8909Pkg/Drivers/ConSplitterDxe/ConSplitterDxe.inf
-  MSM8909Pkg/Drivers/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
+  MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
+  MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
   MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
   MdeModulePkg/Universal/SerialDxe/SerialDxe.inf
 

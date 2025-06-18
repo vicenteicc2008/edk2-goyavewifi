@@ -126,7 +126,7 @@ VOID I2CHandler(UINT32 param);
 typedef struct i2c_tag
 {
     volatile UINT32 ctl;
-    volatile UINT32 cmd;
+    volatile UINT32 Cmd;
     volatile UINT32 div0;
     volatile UINT32 div1;
     volatile UINT32 rst;
@@ -143,7 +143,7 @@ typedef struct i2c_tag
 #define SYS_CTL                         (SYSTIMER_BASE + 0x0008)
 
 #define SYSTEM_CURRENT_CLOCK (*((volatile UINT32 *)SYS_CNT0) & 0xFFFFFFFF)
-#define CHIP_REG_OR(reg_addr, value)    (*(volatile unsigned int *)(reg_addr) |= (unsigned int)(value))
+#define CHIP_REG_OR(reg_addr, value)    (*(volatile UINT32 *)(reg_addr) |= (UINT32)(value))
 
 #define I2C_BUS_MAX 6
 #define I2C_ID_MAX 6

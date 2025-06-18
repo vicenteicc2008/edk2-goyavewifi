@@ -26,17 +26,6 @@
 #include "clock.h"
 
 
-static UINTN ClocksLookup[NUM_CLKS];
-
-VOID
-ClockModuleEnable (
-  IN  UINTN                     Addr,
-  IN  UINTN                     Mode
-  )
-{
-  MmioOr32 (Addr, Mode);
-  while( (MmioRead32(Addr) & (BIT16|BIT17)) != 0 );
-}
 
 EFI_STATUS
 EFIAPI
@@ -45,7 +34,7 @@ SprdClockDxeInitialize (
   IN EFI_SYSTEM_TABLE *SystemTable)
 {
 	DEBUG((EFI_D_INFO, "SprdClockDxe: Initializing Spreadtrum Clock Driver\n"));
-	DEBUG((EFI_D_INFO, "SprdClockDxe: Init Voltage functions\n"));
+	DEBUG((EFI_D_INFO, "SprdClockDxe: Starting Voltage functions\n"));
 	
 	return EFI_SUCCESS;
 }
