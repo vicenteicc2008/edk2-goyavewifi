@@ -244,6 +244,7 @@
   MSM8909Pkg/Drivers/MSM8909PkgDxe/MSM8909PkgDxe.inf
   MSM8909Pkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
   MSM8909Pkg/Drivers/LogoDxe/LogoDxe.inf
+
   #
   # USB Host Support
   #

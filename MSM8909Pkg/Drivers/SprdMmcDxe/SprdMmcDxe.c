@@ -117,6 +117,8 @@ STATIC VOID SdhciDumpRegs(SDHCI_HOST *host)
     DEBUG((EFI_D_INFO, "SprdSdhciDxe: ==========================================\n"));
 }
 
+// Low level functions
+
 VOID SdhciClearSetIrqs (
     IN SDHCI_HOST *Host,
     IN UINT32 Clear,
@@ -273,6 +275,27 @@ STATIC VOID SdhciDeactivateLed(IN SDHCI_HOST *Host)
 	Ctrl &= ~SDHCI_CTRL_LED;
 	SdhciWriteb(Host, Ctrl, SDHCI_HOST_CONTROL);
 }
+
+// Core functions
+
+STATIC
+VOID
+SdhciReadBlockPio (
+  IN SDHCI_HOST *Host
+  )
+{
+	UINTN Flags
+	UINTN Blksize, Len, Chunk;
+	UINT32 uninitialized_var(scratch);
+	UINT8 *buf;
+	DEBUG((EFI_D_INFO, "PIO reading\n"));
+	Blksize = Host->data->blksz;
+	Chunk = 0;
+	// local_irq_save(Flags);
+	
+}
+
+// EntryPoint
 
 EFI_STATUS
 EFIAPI

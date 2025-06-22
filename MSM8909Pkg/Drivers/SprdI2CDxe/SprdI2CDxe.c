@@ -646,13 +646,16 @@ InitI2CDriver (
   EFI_HANDLE      Handle = NULL;
   EFI_STATUS Status;
 
+  DEBUG((EFI_D_INFO, "SprdI2CDxe: Starting Spreadtrum I2C Driver\n"));
+
+  DEBUG((EFI_D_INFO, "SprdI2CDxe: Locating Gpio\n"));
   Status = gBS->LocateProtocol (&gSprdGpioProtocolGuid, NULL, (VOID *)&gSprdGpio);
 
+  DEBUG((EFI_D_INFO, "SprdI2CDxe: Initializing Spreadtrum I2C Driver\n"));
   I2C_Init(0);
 
   Status = gBS->InstallMultipleProtocolInterfaces(&Handle, &gSprdI2cProtocolGuid, NULL);
   ASSERT_EFI_ERROR(Status);
 
-  DEBUG((EFI_D_INFO, "Initializing Spreadtrum I2C\n"));
   return EFI_SUCCESS;
 }

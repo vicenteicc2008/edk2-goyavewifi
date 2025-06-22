@@ -33,7 +33,7 @@ SprdClockDxeInitialize (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE *SystemTable)
 {
-	DEBUG((EFI_D_INFO, "SprdClockDxe: Initializing Spreadtrum Clock Driver\n"));
+	DEBUG((EFI_D_INFO, "SprdClockDxe: Starting Spreadtrum Clock Driver\n"));
 	DEBUG((EFI_D_INFO, "SprdClockDxe: Starting Voltage functions\n"));
 	
 	return EFI_SUCCESS;

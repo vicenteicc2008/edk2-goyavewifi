@@ -18,6 +18,8 @@
 
 #include <Protocol/SprdGpio.h>
 
+#include "ioctl.h"
+
 #define CONFIG_GENERIC_MMC
 
 #define __be32_to_cpu(x)  ((0x000000ff&((x)>>24)) | (0x0000ff00&((x)>>8)) |       \
