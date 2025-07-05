@@ -23,6 +23,8 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/BaseMemoryLib.h>
 
+
+
 #include "clock.h"
 
 
@@ -35,6 +37,8 @@ SprdClockDxeInitialize (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE *SystemTable)
 {
+	EFI_HANDLE Handle = NULL;
+
 	DEBUG((EFI_D_INFO, "SprdClockDxe: Starting Spreadtrum Clock Driver\n"));
 	DEBUG((EFI_D_INFO, "SprdClockDxe: Initializing Voltage\n"));
 	DEBUG((EFI_D_INFO, "SprdClockDxe: Initializing PLL\n"));
