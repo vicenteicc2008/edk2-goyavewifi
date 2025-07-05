@@ -1,3 +1,5 @@
+#ifndef CLOCK_H
+#define CLOCK_H
 
 struct Module
 {
@@ -30,3 +32,4 @@ struct ClkSel {
 	UINT32 Sources[];
 };
 
+#endif
