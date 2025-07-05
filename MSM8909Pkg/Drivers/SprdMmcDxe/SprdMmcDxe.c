@@ -280,18 +280,17 @@ STATIC VOID SdhciDeactivateLed(IN SDHCI_HOST *Host)
 
 STATIC
 VOID
-SdhciReadBlockPio (
-  IN SDHCI_HOST *Host
-  )
+SdhciReadBlockPio (IN SDHCI_HOST *Host)
 {
-	UINTN Flags
+	unsigned long Flags;
 	UINTN Blksize, Len, Chunk;
-	UINT32 uninitialized_var(scratch);
+	UINT32 Scratch;
 	UINT8 *buf;
+	
 	DEBUG((EFI_D_INFO, "PIO reading\n"));
-	Blksize = Host->data->blksz;
+	
+	Blksize = Host->Data->Blksz;
 	Chunk = 0;
-	// local_irq_save(Flags);
 	
 }
 

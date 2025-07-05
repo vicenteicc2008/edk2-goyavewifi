@@ -27,6 +27,8 @@
 
 
 
+#define SHFT_PLL_REFIN                 ( 16 )
+
 EFI_STATUS
 EFIAPI
 SprdClockDxeInitialize (
@@ -34,7 +36,8 @@ SprdClockDxeInitialize (
   IN EFI_SYSTEM_TABLE *SystemTable)
 {
 	DEBUG((EFI_D_INFO, "SprdClockDxe: Starting Spreadtrum Clock Driver\n"));
-	DEBUG((EFI_D_INFO, "SprdClockDxe: Starting Voltage functions\n"));
+	DEBUG((EFI_D_INFO, "SprdClockDxe: Initializing Voltage\n"));
+	DEBUG((EFI_D_INFO, "SprdClockDxe: Initializing PLL\n"));
 	
 	return EFI_SUCCESS;
 }

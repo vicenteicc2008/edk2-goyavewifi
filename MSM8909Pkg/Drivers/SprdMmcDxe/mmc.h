@@ -3,6 +3,7 @@
 
 #include <Uefi.h>
 #include <Uefi/UefiGpt.h>
+#include <Library/BaseLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/DebugLib.h>
 #include <Library/IoLib.h>
@@ -27,6 +28,9 @@
 
 #define readl(addr)         (*((volatile UINT32 *)(addr)))          /* word input */
 #define writel(value,addr)  (*((volatile UINT32 *)(addr))  = (value))   /* word output */
+
+#define  SDHCI_SPACE_AVAILABLE	0x00000400
+#define  SDHCI_DATA_AVAILABLE	0x00000800
 
 #define SDHCI_TIMEOUT_DIVIDE_VALUE	3
 
@@ -92,6 +96,34 @@
 
 #define SDHCI_HOST_CONTROL	0x28
 #define  SDHCI_CTRL_LED		0x01
+
+#define SDHCI_BUFFER  0x20
+
+struct mmc_request {
+	struct mmc_data		*Data;
+	VOID			(*done)(struct mmc_request *);/* completion function */
+	struct mmc_host		*Host;
+};
+
+struct mmc_data {
+	unsigned int		Timeout_ns;	/* data timeout (in ns, max 80ms) */
+	unsigned int		Timeout_clks;	/* data timeout (in clocks) */
+	unsigned int		Blksz;		/* data block size */
+	unsigned int		Blocks;		/* number of blocks */
+	unsigned int		Error;		/* data error */
+	unsigned int		Flags;
+
+#define MMC_DATA_WRITE	(1 << 8)
+#define MMC_DATA_READ	(1 << 9)
+#define MMC_DATA_STREAM	(1 << 10)
+
+	unsigned int		BytesXfered;
+
+	struct mmc_command	*Stop;		/* stop command */
+	struct mmc_request	*Mrq;		/* associated request */
+
+	INT32			HostCookie;	/* host private data */
+};
 
 typedef struct {
 	INTN			index;
@@ -206,8 +238,10 @@ typedef struct {
 	UINTN clock;
 	UINT8 pwr;
 	UINTN BaseAddress;
+	unsigned int		Blocks;		/* number of blocks */
 	struct MMC_HOST *Mmc;
 	const struct SDHCI_OPS *Ops;
+	struct mmc_data		*Data;
 } SDHCI_HOST;
 
 struct mmc_ios {
@@ -298,6 +332,10 @@ STATIC inline UINT8 SdhciReadb(IN SDHCI_HOST *Host, IN UINTN Reg) {
   return MmioRead8((UINTN)Host->ioaddr + Reg);
 }
 
+STATIC inline VOID SdhciWritel(IN SDHCI_HOST *Host, IN UINT8 Val, IN UINTN Reg) {
+  MmioWrite32((UINTN)Host->ioaddr + Reg, Val);
+}
+
 CONST CHAR16* MmcHostname(IN EFI_HANDLE ControllerHandle) {
   EFI_DEVICE_PATH_PROTOCOL *DevicePath;
   EFI_STATUS Status;
@@ -321,5 +359,9 @@ typedef struct {
 } SDHC_DEVICE_PATH;
 
 #define MAX_MMC_NUM     3
+
+#define MMC_DATA_WRITE	(1 << 8)
+#define MMC_DATA_READ	(1 << 9)
+#define MMC_DATA_STREAM	(1 << 10)
 
 #endif

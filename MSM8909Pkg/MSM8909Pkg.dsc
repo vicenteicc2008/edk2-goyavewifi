@@ -226,8 +226,8 @@
   #
   MSM8909Pkg/Drivers/SprdGpioDxe/SprdGpioDxe.inf
   MSM8909Pkg/Drivers/SprdClockDxe/SprdClockDxe.inf
-  MSM8909Pkg/Drivers/SprdI2CDxe/SprdI2CDxe.inf
   MSM8909Pkg/Drivers/SprdDmaDxe/SprdDmaDxe.inf
+  MSM8909Pkg/Drivers/SprdI2CDxe/SprdI2CDxe.inf
   # MSM8909Pkg/Drivers/SprdMmcDxe/SprdMmcDxe.inf
 
   # MSM8909Pkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf

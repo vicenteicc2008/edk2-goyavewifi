@@ -9,7 +9,6 @@
 
 [Sources.common]
   Driver.c
-  clock.c
 
 [Packages]
   MdePkg/MdePkg.dec

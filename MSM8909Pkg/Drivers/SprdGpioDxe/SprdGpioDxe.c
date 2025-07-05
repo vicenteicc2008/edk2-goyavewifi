@@ -47,7 +47,7 @@ SprdGpioDxeInitialize(
   EFI_STATUS  Status = EFI_SUCCESS;
   EFI_HANDLE  Handle = NULL;
 
-  DEBUG((EFI_D_INFO, "Initializing Spreadtrum GPIO\n"));
+  DEBUG((EFI_D_INFO, "SprdGpioDxe: Initializing Spreadtrum GPIO Driver\n"));
 
   //
   // Make sure the Spreadtrum Gpio protocol has not been installed in the system yet.

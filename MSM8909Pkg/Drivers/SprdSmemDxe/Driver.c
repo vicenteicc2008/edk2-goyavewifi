@@ -14,7 +14,7 @@ SprdSmemDxeInitialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTabl
   EFI_HANDLE Handle = NULL;
   EFI_STATUS Status;
 
-  DEBUG((EFI_D_INFO, "SprdSmemDxe: Starting Spreadtrum SMEM\n"));
+  DEBUG((EFI_D_INFO, "SprdSmemDxe: Starting Spreadtrum SMEM Driver\n"));
 
   return EFI_SUCCESS;
 }
