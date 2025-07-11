@@ -27,7 +27,7 @@
   IoLib
 
 [BuildOptions.ARM]
-  GCC:*_*_*_CC_FLAGS = -Wno-unused-variable -Wno-unused-function
+  GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-unused-variable -Wno-unused-function
 
 [Guids]
 
