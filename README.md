@@ -34,7 +34,7 @@ Then make a Image from AIK (Android Image Kitchen) and rename image-new.img to b
 
 Finally, flash it with Odin.
 
-or use one of my releases in github
+or use one of my releases in github (flash it with TWRP)
 
 # Credits
 
