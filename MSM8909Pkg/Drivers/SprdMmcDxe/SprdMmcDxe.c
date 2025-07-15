@@ -144,7 +144,7 @@ STATIC VOID SdhciMaskIrqs(IN SDHCI_HOST *Host, UINT32 Irqs)
 	SdhciClearSetIrqs(Host, Irqs, 0);
 }
 
-static inline UINT32 SdhciReadl(IN SDHCI_HOST *Host, INTN Reg)
+STATIC inline UINT32 SdhciReadl(IN SDHCI_HOST *Host, INTN Reg)
 {
 	return MmioRead32(Host->ioaddr + Reg);
 }
@@ -285,16 +285,243 @@ SdhciReadBlockPio (IN SDHCI_HOST *Host)
 	unsigned long Flags;
 	UINTN Blksize, Len, Chunk;
 	UINT32 Scratch;
-	UINT8 *buf;
+	UINT8 *Buf;
 	
 	DEBUG((EFI_D_INFO, "PIO reading\n"));
 	
 	Blksize = Host->Data->Blksz;
 	Chunk = 0;
-	
+
+	while (Blksize) {
+		if (Chunk == 0) {
+			Scratch = SdhciReadl(Host, SDHCI_BUFFER); // leer 4 bytes desde FIFO
+			Chunk = 4;
+		}
+
+		*Buf++ = (UINT8)(Scratch & 0xFF);
+		Scratch >>= 8;
+		Chunk--;
+		Blksize--;
+	}
 }
 
-// EntryPoint
+STATIC
+VOID
+SdhciWriteBlockPio (IN SDHCI_HOST *Host)
+{
+	unsigned long Flags;
+	UINTN Blksize, Len, Chunk;
+	UINT32 Scratch;
+	UINT8 *Buf;
+	
+	DEBUG((EFI_D_INFO, "PIO writing\n"));
+
+	Blksize = Host->Data->Blksz;
+	Chunk = 0;
+	Scratch = 0;
+
+	while (Blksize) {
+			Scratch |= (UINT32)(*Buf++) << (Chunk * 8);
+		Chunk++;
+		Blksize--;
+
+		if ((Chunk == 4) || (Blksize == 0)) {
+			SdhciWritel(Host, Scratch, SDHCI_BUFFER); // Escribir 4 bytes al FIFO
+			Chunk = 0;
+			Scratch = 0;
+		}
+	}
+}
+
+STATIC
+VOID
+SdhciTransferPio (IN SDHCI_HOST *Host)
+{
+	UINT32 Mask;
+	
+	if (Host->Blocks == 0)
+		return;
+
+	if (Host->Data->Flags & MMC_DATA_READ)
+		Mask = SDHCI_DATA_AVAILABLE;
+	else
+		Mask = SDHCI_SPACE_AVAILABLE;
+
+	/*
+	 * Some controllers (JMicron JMB38x) mess up the buffer bits
+	 * for transfers < 4 bytes. As long as it is just one block,
+	 * we can ignore the bits.
+	 */
+	if ((Host->Quirks & SDHCI_QUIRK_BROKEN_SMALL_PIO) &&
+		(Host->Data->Blocks == 1))
+		Mask = ~0;
+	
+	while (SdhciReadl(Host, SDHCI_PRESENT_STATE) & Mask) {
+		if (Host->Quirks & SDHCI_QUIRK_PIO_NEEDS_DELAY)
+			MicroSecondDelay(100);
+
+		if (Host->Data->Flags & MMC_DATA_READ)
+			SdhciReadBlockPio(Host);
+		else
+			SdhciWriteBlockPio(Host);
+
+		Host->Blocks--;
+		if (Host->Blocks == 0)
+			break;
+	}
+
+	DEBUG((EFI_D_INFO, "PIO transfer complete.\n"));
+}
+
+STATIC
+UINT8
+SdhciCalcTimeout (IN SDHCI_HOST *Host, IN MMC_COMMAND *Cmd)
+{
+	UINT8 Count;
+	struct mmc_data *Data = Cmd->Data;
+	unsigned TargetTimeout, CurrentTimeout;
+	
+	/*
+	 * If the host controller provides us with an incorrect timeout
+	 * value, just skip the check and use 0xE.  The hardware may take
+	 * longer to time out, but that's much better than having a too-short
+	 * timeout value.
+	 */
+	if (Host->Quirks & SDHCI_QUIRK_BROKEN_TIMEOUT_VAL)
+		return 0xE;
+	
+	/* Unspecified timeout, assume max */
+	if (!Data && !Cmd->CmdTimeoutMs)
+		return 0xE;
+
+	/* timeout in us */
+	if (!Data)
+		TargetTimeout = Cmd->CmdTimeoutMs * 1000;
+	else {
+		TargetTimeout = Data->TimeoutNs / 1000;
+		if (Host->clock)
+			TargetTimeout += Data->TimeoutClks / Host->clock;
+	}
+	
+	/*
+	 * Figure out needed cycles.
+	 * We do this in steps in order to fit inside a 32 bit int.
+	 * The first step is the minimum timeout, which will have a
+	 * minimum resolution of 6 bits:
+	 * (1) 2^13*1000 > 2^22,
+	 * (2) host->timeout_clk < 2^16
+	 *     =>
+	 *     (1) / (2) > 2^6
+	 */
+	Count = 0;
+	CurrentTimeout = (1 << 13) * 1000 / Host->timeout_clk;
+	while (CurrentTimeout < TargetTimeout) {
+		Count++;
+		CurrentTimeout <<= 1;
+		if (Count >= 0xF)
+			break;
+	}
+	
+	if (Count >= 0xF) {
+		DEBUG((EFI_D_WARN, "%s: Too large timeout 0x%x requested for CMD%d!\n",
+		    MmcHostname(Host->Mmc), Count, Cmd->Opcode));
+		Count = 0xE;
+	}
+
+	return Count;
+}
+
+STATIC
+VOID
+SdhciSetTransferIrqs (IN SDHCI_HOST *Host)
+{
+	UINT32 PioIrqs = SDHCI_INT_DATA_AVAIL | SDHCI_INT_SPACE_AVAIL;
+	UINT32 DmaIrqs = SDHCI_INT_DMA_END | SDHCI_INT_ADMA_ERROR;
+
+	if (Host->flags & SDHCI_REQ_USE_DMA)
+		SdhciClearSetIrqs(Host, PioIrqs, DmaIrqs);
+	else
+		SdhciClearSetIrqs(Host, DmaIrqs, PioIrqs);
+}
+
+STATIC
+VOID
+SdhciPrepareData (
+  IN SDHCI_HOST *Host,
+  IN MMC_COMMAND *Cmd
+  )
+{
+  UINT8 Timeout, Ctrl;
+  struct mmc_data *Data = Cmd->Data;
+  EFI_STATUS Status;
+
+  if (Data || (Cmd->Flags & MMC_RSP_BUSY)) {
+    Timeout = SdhciCalcTimeout(Host, Cmd);
+    SdhciWriteb(Host, Timeout, SDHCI_TIMEOUT_CONTROL);
+  }
+
+  if (!Data)
+    return;
+
+  Host->Data = Data;
+  Host->DataEarly = 0;
+  Host->Data->BytesXfered = 0;
+
+  // Inicializar modo DMA si está disponible
+  if (Host->flags & (SDHCI_USE_SDMA | SDHCI_USE_ADMA))
+    Host->flags |= SDHCI_REQ_USE_DMA;
+
+  // Si no se usa DMA, marcar bloques para PIO manual
+  Host->Blocks = Data->Blocks;
+
+  SdhciSetTransferIrqs(Host);
+
+  // Configuración de tamaño de bloque y cantidad
+  SdhciWritew(Host,
+    SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG, Data->Blksz),
+    SDHCI_BLOCK_SIZE);
+  SdhciWritew(Host, Data->Blocks, SDHCI_BLOCK_COUNT);
+}
+
+STATIC
+VOID
+SdhciSetTransferMode (
+  IN SDHCI_HOST *Host,
+  IN MMC_COMMAND *Cmd
+  )
+{
+	UINT16 Mode;
+    struct mmc_data *Data = Cmd->Data;
+
+	if (Data == NULL)
+		return;
+
+	Mode = SDHCI_TRNS_BLK_CNT_EN;
+	if (MmcOpMulti(Cmd->Opcode) || Data->Blocks > 1) {
+		Mode |= SDHCI_TRNS_MULTI;
+		/*
+		 * If we are sending CMD23, CMD12 never gets sent
+		 * on successful completion (so no Auto-CMD12).
+		 */
+		if (!Host->Mrq->Sbc && (Host->flags & SDHCI_AUTO_CMD12))
+			Mode |= SDHCI_TRNS_AUTO_CMD12;
+		else if (Host->Mrq->Sbc && (Host->flags & SDHCI_AUTO_CMD23)) {
+			Mode |= SDHCI_TRNS_AUTO_CMD23;
+			SdhciWritel(Host, Host->Mrq->Sbc->Arg, SDHCI_ARGUMENT2);
+		}
+	}
+
+	if (Data->Flags & MMC_DATA_READ)
+		Mode |= SDHCI_TRNS_READ;
+	if (Host->flags & SDHCI_REQ_USE_DMA)
+		Mode |= SDHCI_TRNS_DMA;
+
+	SdhciWritew(Host, Mode, SDHCI_TRANSFER_MODE);
+}
+
+
+
+// EntryPoint for SprdSdhciDxe
 
 EFI_STATUS
 EFIAPI

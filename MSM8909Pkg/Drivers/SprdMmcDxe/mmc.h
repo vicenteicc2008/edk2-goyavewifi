@@ -39,6 +39,8 @@
 #define EMMC_BOOT_START_BLOCK (34)
 #define SD_BOOT_START_BLOCK (16)
 
+#define SDHCI_TIMEOUT_CONTROL	0x2E
+
 #define SD_VERSION_SD 0x20000
 #define SD_VERSION_2  (SD_VERSION_SD | 0x20)
 #define SD_VERSION_1_0  (SD_VERSION_SD | 0x10)
@@ -96,22 +98,26 @@
 
 #define SDHCI_HOST_CONTROL	0x28
 #define  SDHCI_CTRL_LED		0x01
+#define  SDHCI_CTRL_4BITBUS	0x02
+#define  SDHCI_CTRL_HISPD	0x04
+#define  SDHCI_CTRL_DMA_MASK	0x18
+#define   SDHCI_CTRL_SDMA	0x00
+#define   SDHCI_CTRL_ADMA1	0x08
+#define   SDHCI_CTRL_ADMA32	0x10
+#define   SDHCI_CTRL_ADMA64	0x18
+#define   SDHCI_CTRL_8BITBUS	0x20
 
 #define SDHCI_BUFFER  0x20
 
-struct mmc_request {
-	struct mmc_data		*Data;
-	VOID			(*done)(struct mmc_request *);/* completion function */
-	struct mmc_host		*Host;
-};
-
 struct mmc_data {
-	unsigned int		Timeout_ns;	/* data timeout (in ns, max 80ms) */
-	unsigned int		Timeout_clks;	/* data timeout (in clocks) */
+	unsigned int		TimeoutNs;	/* data timeout (in ns, max 80ms) */
+	unsigned int		TimeoutClks;	/* data timeout (in clocks) */
 	unsigned int		Blksz;		/* data block size */
 	unsigned int		Blocks;		/* number of blocks */
 	unsigned int		Error;		/* data error */
 	unsigned int		Flags;
+
+	UINT32			Length;		/* length of the mapped area */
 
 #define MMC_DATA_WRITE	(1 << 8)
 #define MMC_DATA_READ	(1 << 9)
@@ -231,7 +237,7 @@ typedef struct {
 	#define SDHCI_SDIO_IRQ_ENABLED	(1<<9)	/* SDIO irq enabled */
 	#define SDHCI_HS200_NEEDS_TUNING (1<<10)	/* HS200 needs tuning */
 	#define SDHCI_USING_RETUNING_TIMER (1<<11)	/* Host is using a retuning timer for the card */
-	UINTN version;
+	UINTN Version;
 	UINTN max_clk;	/* Max possible freq (MHz) */
 	UINTN timeout_clk;	/* Timeout freq (KHz) */
 	UINTN clk_mul;	/* Clock Muliplier value */
@@ -242,6 +248,9 @@ typedef struct {
 	struct MMC_HOST *Mmc;
 	const struct SDHCI_OPS *Ops;
 	struct mmc_data		*Data;
+	unsigned int DataEarly:1;
+	struct mmc_request	*Mrq;		/* associated request */
+
 } SDHCI_HOST;
 
 struct mmc_ios {
@@ -324,12 +333,21 @@ struct SDHCI_OPS {
   VOID   (*PlatformInit)(IN SDHCI_HOST *Host);
 };
 
+STATIC inline UINT8 SdhciReadb(IN SDHCI_HOST *Host, IN UINTN Reg) {
+  return MmioRead8((UINTN)Host->ioaddr + Reg);
+}
+
 STATIC inline VOID SdhciWriteb(IN SDHCI_HOST *Host, IN UINT8 Val, IN UINTN Reg) {
   MmioWrite8((UINTN)Host->ioaddr + Reg, Val);
 }
 
-STATIC inline UINT8 SdhciReadb(IN SDHCI_HOST *Host, IN UINTN Reg) {
-  return MmioRead8((UINTN)Host->ioaddr + Reg);
+STATIC inline UINT8 SdhciReadw(IN SDHCI_HOST *Host, IN UINTN Reg) {
+  return MmioRead16((UINTN)Host->ioaddr + Reg);
+}
+
+STATIC inline VOID SdhciWritew(IN SDHCI_HOST *Host, IN UINT16 Val, IN UINTN Reg)
+{
+  MmioWrite16((UINTN)Host->ioaddr + Reg, Val);
 }
 
 STATIC inline VOID SdhciWritel(IN SDHCI_HOST *Host, IN UINT8 Val, IN UINTN Reg) {
@@ -348,6 +366,110 @@ CONST CHAR16* MmcHostname(IN EFI_HANDLE ControllerHandle) {
   return ConvertDevicePathToText(DevicePath, FALSE, FALSE);
 }
 
+#define MMC_SET_BLOCKLEN         16   /* ac   [31:0] block len   R1  */
+#define MMC_READ_SINGLE_BLOCK    17   /* adtc [31:0] data addr   R1  */
+#define MMC_READ_MULTIPLE_BLOCK  18   /* adtc [31:0] data addr   R1  */
+#define MMC_SEND_TUNING_BLOCK    19   /* adtc                    R1  */
+#define MMC_SEND_TUNING_BLOCK_HS200	21	/* adtc R1  */
+#define MMC_WRITE_DAT_UNTIL_STOP 20   /* adtc [31:0] data addr   R1  */
+#define MMC_SET_BLOCK_COUNT      23   /* adtc [31:0] data addr   R1  */
+#define MMC_WRITE_BLOCK          24   /* adtc [31:0] data addr   R1  */
+#define MMC_WRITE_MULTIPLE_BLOCK 25   /* adtc                    R1  */
+#define MMC_PROGRAM_CID          26   /* adtc                    R1  */
+#define MMC_PROGRAM_CSD          27   /* adtc                    R1  */
+
+STATIC inline BOOLEAN MmcOpMulti(UINT32 opcode)
+{
+	return opcode == MMC_WRITE_MULTIPLE_BLOCK ||
+	       opcode == MMC_READ_MULTIPLE_BLOCK;
+}
+
+typedef struct  {
+	UINT32			Opcode;
+	UINT32			Arg;
+#define MMC_CMD23_ARG_REL_WR	(1 << 31)
+#define MMC_CMD23_ARG_PACKED	((0 << 31) | (1 << 30))
+#define MMC_CMD23_ARG_TAG_REQ	(1 << 29)
+	UINT32			resp[4];
+	unsigned int		Flags;
+#define MMC_RSP_PRESENT	(1 << 0)
+#define MMC_RSP_136	(1 << 1)		/* 136 bit response */
+#define MMC_RSP_CRC	(1 << 2)		/* expect valid crc */
+#define MMC_RSP_BUSY	(1 << 3)		/* card may send busy */
+#define MMC_RSP_OPCODE	(1 << 4)		/* response contains opcode */
+
+#define MMC_CMD_MASK	(3 << 5)		/* non-SPI command type */
+#define MMC_CMD_AC	(0 << 5)
+#define MMC_CMD_ADTC	(1 << 5)
+#define MMC_CMD_BC	(2 << 5)
+#define MMC_CMD_BCR	(3 << 5)
+
+#define MMC_RSP_SPI_S1	(1 << 7)		/* one status byte */
+#define MMC_RSP_SPI_S2	(1 << 8)		/* second byte */
+#define MMC_RSP_SPI_B4	(1 << 9)		/* four data bytes */
+#define MMC_RSP_SPI_BUSY (1 << 10)		/* card may send busy */
+
+/*
+ * These are the native response types, and correspond to valid bit
+ * patterns of the above flags.  One additional valid pattern
+ * is all zeros, which means we don't expect a response.
+ */
+#define MMC_RSP_NONE	(0)
+#define MMC_RSP_R1	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R1B	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_BUSY)
+#define MMC_RSP_R2	(MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
+#define MMC_RSP_R3	(MMC_RSP_PRESENT)
+#define MMC_RSP_R4	(MMC_RSP_PRESENT)
+#define MMC_RSP_R5	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+
+#define mmc_resp_type(Cmd)	((Cmd)->Flags & (MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC|MMC_RSP_BUSY|MMC_RSP_OPCODE))
+
+/*
+ * These are the SPI response types for MMC, SD, and SDIO cards.
+ * Commands return R1, with maybe more info.  Zero is an error type;
+ * callers must always provide the appropriate MMC_RSP_SPI_Rx flags.
+ */
+#define MMC_RSP_SPI_R1	(MMC_RSP_SPI_S1)
+#define MMC_RSP_SPI_R1B	(MMC_RSP_SPI_S1|MMC_RSP_SPI_BUSY)
+#define MMC_RSP_SPI_R2	(MMC_RSP_SPI_S1|MMC_RSP_SPI_S2)
+#define MMC_RSP_SPI_R3	(MMC_RSP_SPI_S1|MMC_RSP_SPI_B4)
+#define MMC_RSP_SPI_R4	(MMC_RSP_SPI_S1|MMC_RSP_SPI_B4)
+#define MMC_RSP_SPI_R5	(MMC_RSP_SPI_S1|MMC_RSP_SPI_S2)
+#define MMC_RSP_SPI_R7	(MMC_RSP_SPI_S1|MMC_RSP_SPI_B4)
+
+#define mmc_spi_resp_type(Cmd)	((Cmd)->Flags & \
+		(MMC_RSP_SPI_S1|MMC_RSP_SPI_BUSY|MMC_RSP_SPI_S2|MMC_RSP_SPI_B4))
+
+/*
+ * These are the command types.
+ */
+#define mmc_cmd_type(Cmd)	((Cmd)->Flags & MMC_CMD_MASK)
+
+	unsigned int		Retries;	/* max number of retries */
+	unsigned int		Error;		/* command error */
+
+/*
+ * Standard errno values are used for errors, but some have specific
+ * meaning in the MMC layer:
+ *
+ * ETIMEDOUT    Card took too long to respond
+ * EILSEQ       Basic format problem with the received or sent data
+ *              (e.g. CRC check failed, incorrect opcode in response
+ *              or bad end bit)
+ * EINVAL       Request cannot be performed because of restrictions
+ *              in hardware and/or the driver
+ * ENOMEDIUM    Host can determine that the slot is empty and is
+ *              actively failing requests
+ */
+
+	unsigned int		CmdTimeoutMs;	/* in milliseconds */
+
+	struct mmc_data		*Data;		/* data segment associated with cmd */
+	struct mmc_request	*Mrq;		/* associated request */
+} MMC_COMMAND;
+
 typedef enum {
   READ,
   WRITE
@@ -357,6 +479,42 @@ typedef struct {
   VENDOR_DEVICE_PATH  Mmc;
   EFI_DEVICE_PATH     End;
 } SDHC_DEVICE_PATH;
+
+struct mmc_request {
+	IN MMC_COMMAND	*Sbc;		/* SET_BLOCK_COUNT for multiblock */
+	IN MMC_COMMAND	*Cmd;
+	IN MMC_COMMAND	*Stop;
+
+	struct mmc_data		*Data;
+	VOID			(*done)(struct mmc_request *);/* completion function */
+	struct mmc_host		*Host;
+};
+
+
+#define   SDHCI_SPEC_100	0
+#define   SDHCI_SPEC_200	1
+#define   SDHCI_SPEC_300	2
+
+#define SDHCI_MAX_DIV_SPEC_200	256
+#define SDHCI_MAX_DIV_SPEC_300	2046
+
+#define SDHCI_DEFAULT_BOUNDARY_SIZE  (512 * 1024)
+#define SDHCI_DEFAULT_BOUNDARY_ARG   ((SDHCI_DEFAULT_BOUNDARY_SIZE) - 12)
+
+#define SDHCI_BLOCK_SIZE	0x04
+#define SDHCI_MAKE_BLKSZ(Dma, Blksz) (((Dma & 0x7) << 12) | (Blksz & 0xFFF))
+
+#define SDHCI_BLOCK_COUNT	0x06
+
+#define SDHCI_ARGUMENT		0x08
+
+#define SDHCI_TRANSFER_MODE	0x0C
+#define  SDHCI_TRNS_DMA		0x01
+#define  SDHCI_TRNS_BLK_CNT_EN	0x02
+#define  SDHCI_TRNS_AUTO_CMD12	0x04
+#define  SDHCI_TRNS_AUTO_CMD23	0x08
+#define  SDHCI_TRNS_READ	0x10
+#define  SDHCI_TRNS_MULTI	0x20
 
 #define MAX_MMC_NUM     3
 
