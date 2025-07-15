@@ -107,6 +107,8 @@
 #define   SDHCI_CTRL_ADMA64	0x18
 #define   SDHCI_CTRL_8BITBUS	0x20
 
+#define SDHCI_RESPONSE		0x10
+
 #define SDHCI_BUFFER  0x20
 
 struct mmc_data {
@@ -521,5 +523,25 @@ struct mmc_request {
 #define MMC_DATA_WRITE	(1 << 8)
 #define MMC_DATA_READ	(1 << 9)
 #define MMC_DATA_STREAM	(1 << 10)
+
+#define  SDHCI_COMMAND		0x0E
+#define  SDHCI_CMD_RESP_MASK	0x03
+#define  SDHCI_CMD_CRC		0x08
+#define  SDHCI_CMD_INDEX	0x10
+#define  SDHCI_CMD_DATA		0x20
+#define  SDHCI_CMD_ABORTCMD	0xC0
+
+#define  SDHCI_CMD_RESP_NONE	0x00
+#define  SDHCI_CMD_RESP_LONG	0x01
+#define  SDHCI_CMD_RESP_SHORT	0x02
+#define  SDHCI_CMD_RESP_SHORT_BUSY 0x03
+
+#define SDHCI_MAKE_CMD(c, f) (((c & 0xff) << 8) | (f & 0xff))
+#define SDHCI_GET_CMD(c) ((c>>8) & 0x3f)
+
+#define SDHCI_PRESENT_STATE	0x24
+#define SDHCI_CMD_INHIBIT	0x00000001
+
+#define mdelay(ms) MicroSecondDelay((ms)*1000)
 
 #endif

@@ -80,6 +80,7 @@ struct MMC_HOST {
 	UINT32			Caps;
 };
 
+STATIC VOID SdhciFinishData(IN SDHCI_HOST *);
 
 STATIC VOID SdhciDumpRegs(SDHCI_HOST *host)
 {
@@ -522,7 +523,58 @@ SdhciSetTransferMode (
 	SdhciWritew(Host, Mode, SDHCI_TRANSFER_MODE);
 }
 
+STATIC
+VOID
+SdhciSendCmd (
+  IN SDHCI_HOST *Host,
+  IN MMC_COMMAND *Cmd
+  )
+{
+	int Flags;
+	UINT32 Mask;
+	unsigned long Timeout;
 
+	Timeout = 10;
+
+	Mask = SDHCI_CMD_INHIBIT;
+	if ((Cmd->Data != NULL) || (Cmd->Flags & MMC_RSP_BUSY))
+		Mask |= SDHCI_DATA_INHIBIT;
+
+	if (Host->Mrq->Data && ((MMC_COMMAND *)Cmd == (MMC_COMMAND *)Host->Mrq->Data->Stop))
+		Mask &= ~SDHCI_DATA_INHIBIT;
+
+	while (SdhciReadl(Host, SDHCI_PRESENT_STATE) & Mask) {
+		if (Timeout == 0) {
+			DEBUG((EFI_D_ERROR, "%s: Controller never released "
+				"inhibit bit(s).\n", MmcHostname(Host->Mmc)));
+			SdhciDumpRegs(Host);
+			Cmd->Error = -5;
+			return;
+		}
+		Timeout--;
+		mdelay(1);
+	}
+
+	if (!(Cmd->Flags & MMC_RSP_PRESENT))
+		Flags = SDHCI_CMD_RESP_NONE;
+	else if (Cmd->Flags & MMC_RSP_136)
+		Flags = SDHCI_CMD_RESP_LONG;
+	else if (Cmd->Flags & MMC_RSP_BUSY)
+		Flags = SDHCI_CMD_RESP_SHORT_BUSY;
+	else
+		Flags = SDHCI_CMD_RESP_SHORT;
+
+	if (Cmd->Flags & MMC_RSP_CRC)
+		Flags |= SDHCI_CMD_CRC;
+	if (Cmd->Flags & MMC_RSP_OPCODE)
+		Flags |= SDHCI_CMD_INDEX;
+
+	if (Cmd->Data || Cmd->Opcode == MMC_SEND_TUNING_BLOCK ||
+	    Cmd->Opcode == MMC_SEND_TUNING_BLOCK_HS200)
+		Flags |= SDHCI_CMD_DATA;
+
+	SdhciWritew(Host, SDHCI_MAKE_CMD(Cmd->Opcode, Flags), SDHCI_COMMAND);
+}
 
 
 // EntryPoint for SprdSdhciDxe
