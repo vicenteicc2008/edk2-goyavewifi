@@ -1,5 +1,8 @@
 #include "mmc.h"
 
+#define SPRD_SDHCI_HOST_DEFAULT_CLOCK 26000000
+#define SDHCI_FIX_PRE_COUNT			  15
+
 #define MAX_TUNING_LOOP 40
 
 #define SDHCI_USE_LEDS_CLASS
@@ -294,7 +297,7 @@ SdhciReadBlockPio (IN SDHCI_HOST *Host)
 
 	while (Blksize) {
 		if (Chunk == 0) {
-			Scratch = SdhciReadl(Host, SDHCI_BUFFER); // leer 4 bytes desde FIFO
+			Scratch = SdhciReadl(Host, SDHCI_BUFFER); // Read 4 bytes from FIFO
 			Chunk = 4;
 		}
 
@@ -326,7 +329,7 @@ SdhciWriteBlockPio (IN SDHCI_HOST *Host)
 		Blksize--;
 
 		if ((Chunk == 4) || (Blksize == 0)) {
-			SdhciWritel(Host, Scratch, SDHCI_BUFFER); // Escribir 4 bytes al FIFO
+			SdhciWritel(Host, Scratch, SDHCI_BUFFER); // Write 4 bytes to FIFO
 			Chunk = 0;
 			Scratch = 0;
 		}
@@ -471,12 +474,12 @@ SdhciPrepareData (
   if (Host->flags & (SDHCI_USE_SDMA | SDHCI_USE_ADMA))
     Host->flags |= SDHCI_REQ_USE_DMA;
 
-  // Si no se usa DMA, marcar bloques para PIO manual
+  // If DMA not used, mark blocks for manual PIO
   Host->Blocks = Data->Blocks;
 
   SdhciSetTransferIrqs(Host);
 
-  // Configuración de tamaño de bloque y cantidad
+  // Block size Setiing
   SdhciWritew(Host,
     SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG, Data->Blksz),
     SDHCI_BLOCK_SIZE);
@@ -518,6 +521,7 @@ SdhciSetTransferMode (
 
 	SdhciWritew(Host, Mode, SDHCI_TRANSFER_MODE);
 }
+
 
 
 
