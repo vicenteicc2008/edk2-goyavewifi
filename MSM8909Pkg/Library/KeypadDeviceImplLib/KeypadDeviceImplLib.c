@@ -61,7 +61,7 @@ KeypadDeviceImplConstructor (
   // home (gpio2)
   StaticContext              = KeypadKeyCodeToKeyContext(102);
   StaticContext->PinctrlBase = 0xf5224000;
-  StaticContext->BankOffset  = 0x2;
+  StaticContext->BankOffset  = 0;
   StaticContext->PinNum      = 113;
 
   return RETURN_SUCCESS;

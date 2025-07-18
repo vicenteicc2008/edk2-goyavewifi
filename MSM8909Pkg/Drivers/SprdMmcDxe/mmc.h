@@ -17,8 +17,6 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/DevicePath.h>
 
-#include <Protocol/SprdGpio.h>
-
 #include "ioctl.h"
 
 #define CONFIG_GENERIC_MMC

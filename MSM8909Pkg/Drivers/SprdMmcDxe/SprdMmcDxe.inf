@@ -28,7 +28,6 @@
   gEfiBlockIoProtocolGuid                       ## PRODUCES
   gEfiDevicePathProtocolGuid                    ## PRODUCES
   gEfiDriverDiagnostics2ProtocolGuid            ## SOMETIMES_PRODUCES
-  gSprdGpioProtocolGuid
   gSprdMmcProtocolGuid
 
 [BuildOptions.ARM]

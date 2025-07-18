@@ -75,6 +75,8 @@
   VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
 
   # SoC Libraries
+  # KeypadDeviceHelperLib|MSM8909Pkg/Library/KeypadDeviceHelperLib/KeypadDeviceHelperLib.inf
+  # KeypadDeviceImplLib|MSM8909Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf
 
   # SimpleFbDxe
   FrameBufferBltLib|MSM8909Pkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
@@ -85,7 +87,7 @@
   PlatformBootManagerLib|MSM8909Pkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
   MemoryInitPeiLib|MSM8909Pkg/Library/MemoryInitPeiLib/PeiMemoryAllocationLib.inf
 
-  PlatformPeiLib|ArmPlatformPkg/PlatformPei/PlatformPeiLib.inf
+  PlatformPeiLib|MSM8909Pkg/Library/PlatformPeiLib/PlatformPeiLib.inf
 
 [LibraryClasses.common.SEC]
   PrePiLib|EmbeddedPkg/Library/PrePiLib/PrePiLib.inf
