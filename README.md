@@ -1,7 +1,7 @@
 Attempt to create a minimal EDK2 for Samsung Galaxy Tab E 7.0 (SM-T113NU) but should work on SM-T116 (3G Version)
 
 ## Status
-Boots to UEFI Shell Buttons, eMMC and USB are not working.
+Boots to UEFI Shell but buttons, eMMC and USB are not working.
 
 ## Building
 Tested on Ubuntu 22.04.
