@@ -113,7 +113,7 @@
   gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|4
 
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Some Random Trap Artist which likes Anuel AA in Chile"
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"1.0-rc1"
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"1.0-rc2"
 
   # Memory protection
   gEfiMdeModulePkgTokenSpaceGuid.PcdImageProtectionPolicy|0x00000000

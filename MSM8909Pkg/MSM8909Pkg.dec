@@ -52,4 +52,10 @@
   gMSM8909PkgTokenSpaceGuid.PcdUefiMemPoolBase|0|UINT64|0x00000a106
   gMSM8909PkgTokenSpaceGuid.PcdUefiMemPoolSize|0|UINT32|0x00000a107
 
+  # SPRD GPIO
   gMSM8909PkgTokenSpaceGuid.GpioBase|0|UINT32|0x0000a600
+
+  # Timer
+  gMSM8909PkgTokenSpaceGuid.PcdTimerBase|0|UINT32|0x0000a700
+
+  # SPRD eMMC/SD card

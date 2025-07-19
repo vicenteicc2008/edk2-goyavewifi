@@ -67,10 +67,10 @@ TimerInterruptHandler (
 {
   EFI_TPL OriginalTPL;
   UINT32 Tmp;
-  UINT32	PWMTimerBase;
+  UINT32	TimerBase;
 
 
-  PWMTimerBase=PcdGet32(PcdTimerBase);
+  TimerBase=PcdGet32(PcdTimerBase);
   //DEBUG ((EFI_D_ERROR, "PWM Timer INT Occur\n"));
   //
   // DXE core uses this callback for the EFI timer tick. The DXE core uses locks
@@ -80,8 +80,8 @@ TimerInterruptHandler (
   OriginalTPL = gBS->RaiseTPL (TPL_HIGH_LEVEL);
 
   // clear the periodic interrupt
-  Tmp = MmioRead32 (PWMTimerBase + PWM_TINT_CSTAT_OFFSET);
-  MmioWrite32 ((PWMTimerBase + PWM_TINT_CSTAT_OFFSET), Tmp);
+  Tmp = MmioRead32 (TimerBase + PWM_TINT_CSTAT_OFFSET);
+  MmioWrite32 ((TimerBase + PWM_TINT_CSTAT_OFFSET), Tmp);
 
   // signal end of interrupt early to help avoid losing subsequent ticks from long duration handlers
   gInterrupt->EndOfInterrupt (gInterrupt, Source);
@@ -152,11 +152,11 @@ ExitBootServicesEvent (
   IN VOID       *Context
   )
 {
-  UINT32	PWMTimerBase;
+  UINT32	TimerBase;
 
   TimerBase=PcdGet32(PcdTimerBase);
   // All timer is off
-  MmioWrite32 ((PWMTimerBase + PWM_TCON_OFFSET), 0);
+  MmioWrite32 ((TimerBase + PWM_TCON_OFFSET), 0);
 }
 
 /**
@@ -197,10 +197,10 @@ TimerDriverSetTimerPeriod (
   EFI_STATUS  Status;
   UINT64      TimerTicks;
   UINT32			Tmp;
-  UINT32	PWMTimerBase;
+  UINT32	TimerBase;
 
-  PWMTimerBase=PcdGet32(PcdTimerBase);
-  // Stop PWM timer 0
+  TimerBase=PcdGet32(PcdTimerBase);
+  // Stop timer 0
   Tmp = MmioRead32 (TimerBase + PWM_TCON_OFFSET);
   Tmp &= ~(0x1F << 0);
   MmioWrite32 ((TimerBase + PWM_TCON_OFFSET) ,Tmp);
@@ -365,7 +365,7 @@ TimerInitialize (
   EFI_STATUS  Status;
 
   UINT32	Tmp;
-  UINT32	PWMTimerBase;
+  UINT32	TimerBase;
 
   TimerBase=PcdGet32(PcdTimerBase);
   // Find the interrupt controller protocol.  ASSERT if not found.
@@ -385,12 +385,12 @@ TimerInitialize (
         // Timer 0,1,2 divider:0x2(/4) => 66666666hz
         MmioWrite32 ((TimerBase + PWM_TCFG1_OFFSET), (0x2 << 2) + (0x2 << 1) + (0x2 << 0));
 /*
-  // PWM Input source clock is 100Mhz and Configure 1Mhz for PWM Timer
-  Tmp = MmioRead32 (PWMTimerBase + PWM_TCFG0_OFFSET);
+  // Input source clock is 100Mhz and Configure 1Mhz for Timer
+  Tmp = MmioRead32 (TimerBase + PWM_TCFG0_OFFSET);
   Tmp &= ~(0xFF << 0);
   Tmp |= (0x63 << 0);
-  MmioWrite32 ((PWMTimerBase + PWM_TCFG0_OFFSET), Tmp);
-  MmioWrite32 ((PWMTimerBase + PWM_TCFG1_OFFSET), 0x0);
+  MmioWrite32 ((TimerBase + PWM_TCFG0_OFFSET), Tmp);
+  MmioWrite32 ((TimerBase + PWM_TCFG1_OFFSET), 0x0);
 */
 	//Timer 1 INT disable
   Tmp = MmioRead32 (TimerBase + PWM_TINT_CSTAT_OFFSET);
@@ -404,7 +404,7 @@ TimerInitialize (
 
   // Timer 1 used by Free running counter with Auto re-load mode
   MmioWrite32 ((TimerBase + PWM_TCNTB1_OFFSET), 0xFFFFFFFF);
-  // Set and Clear PWM Manually update for Timer 1
+  // Set and Clear Manually update for Timer 1
   Tmp = MmioRead32 (TimerBase + PWM_TCON_OFFSET);
   Tmp |= (0x2 << 8);
   MmioWrite32 ((TimerBase + PWM_TCON_OFFSET), Tmp);

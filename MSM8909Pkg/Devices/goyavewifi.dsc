@@ -30,3 +30,4 @@
   gMSM8909PkgTokenSpaceGuid.PcdMipiFrameBufferPixelBpp|16
 
   gMSM8909PkgTokenSpaceGuid.GpioBase|0xf5224000
+  gMSM8909PkgTokenSpaceGuid.PcdTimerBase|0xf5204000

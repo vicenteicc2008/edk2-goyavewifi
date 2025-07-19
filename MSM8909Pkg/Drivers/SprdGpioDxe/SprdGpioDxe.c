@@ -22,11 +22,11 @@
 UINT32 GpioBase = FixedPcdGet32(GpioBase);
 
 UINT32
-gpio_get(UINT32 gpioNumber)
+GpioGet(UINT32 GpioNumber)
 {
     UINT32 val = -1;
 
-    val = (MmioRead32(GpioBase) >> gpioNumber) & 0x1;
+    val = (MmioRead32(GpioBase) >> GpioNumber) & 0x1;
 
     if(val == -1) DEBUG((EFI_D_ERROR, "Error Reading GPIO\n"));
 
@@ -34,7 +34,7 @@ gpio_get(UINT32 gpioNumber)
 }
 
 SPRD_GPIO  gSprdGpio = {
-  gpio_get
+  GpioGet
 };
 
 EFI_STATUS

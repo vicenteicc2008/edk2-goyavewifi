@@ -32,9 +32,6 @@
 [Guids]
 
 [Protocols]
-  gEfiBlockIoProtocolGuid
-  gEfiCpuArchProtocolGuid
-  gEfiDevicePathProtocolGuid
   gSprdGpioProtocolGuid
 
 [Pcd]
