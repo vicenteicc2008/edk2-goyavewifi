@@ -80,6 +80,7 @@ static ARM_MEMORY_REGION_DESCRIPTOR_EX gDeviceMemoryDescriptorEx[] = {
 {0xF5112000, 0x00004000, "DMA",  		 	    AddDev, MMAP_IO, UNCACHEABLE, MmIO,   DEVICE},
 {0xF511C000, 0x00001000, "SDHCI 0",  		 	AddDev, MMAP_IO, UNCACHEABLE, MmIO,   DEVICE},
 {0xF5117000, 0x00001000, "SDHCI 1",  		 	AddDev, MMAP_IO, UNCACHEABLE, MmIO,   DEVICE},
+{0xF5118000, 0x00001000, "SDHCI 2",  		 	AddDev, MMAP_IO, UNCACHEABLE, MmIO,   DEVICE},
 
 //------------- Terminator for MMU ----------
 {0, 0, "Terminator", 0, 0, 0, 0, 0}
