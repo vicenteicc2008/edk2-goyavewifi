@@ -29,5 +29,11 @@
   gMSM8909PkgTokenSpaceGuid.PcdMipiFrameBufferVisibleHeight|600
   gMSM8909PkgTokenSpaceGuid.PcdMipiFrameBufferPixelBpp|16
 
+  # SPRD GPIO
   gMSM8909PkgTokenSpaceGuid.GpioBase|0xf5224000
+
+  # Timer
   gMSM8909PkgTokenSpaceGuid.PcdTimerBase|0xf5204000
+  
+  # SPRD eMMC/SD card
+  gMSM8909PkgTokenSpaceGuid.PcdSdhciAddress|0xf511c000

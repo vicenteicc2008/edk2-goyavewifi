@@ -59,3 +59,4 @@
   gMSM8909PkgTokenSpaceGuid.PcdTimerBase|0|UINT32|0x0000a700
 
   # SPRD eMMC/SD card
+  gMSM8909PkgTokenSpaceGuid.PcdSdhciAddress|0|UINT32|0x00000a800

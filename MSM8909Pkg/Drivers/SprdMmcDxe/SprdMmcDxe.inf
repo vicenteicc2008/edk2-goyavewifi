@@ -30,6 +30,9 @@
   gEfiDriverDiagnostics2ProtocolGuid            ## SOMETIMES_PRODUCES
   gSprdMmcProtocolGuid
 
+[Pcd]
+  gMSM8909PkgTokenSpaceGuid.PcdSdhciAddress
+
 [BuildOptions.ARM]
   GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-overflow -Wno-unused-variable -Wno-unused-function
 

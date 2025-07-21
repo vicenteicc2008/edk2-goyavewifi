@@ -289,7 +289,7 @@ SdhciReadBlockPio (IN SDHCI_HOST *Host)
 	UINT32 Scratch;
 	UINT8 *Buf;
 	
-	DEBUG((EFI_D_INFO, "PIO reading\n"));
+	DEBUG((EFI_D_INFO, "SprdSdhciDxe: PIO reading\n"));
 	
 	Blksize = Host->Data->Blksz;
 	Chunk = 0;
@@ -316,7 +316,7 @@ SdhciWriteBlockPio (IN SDHCI_HOST *Host)
 	UINT32 Scratch;
 	UINT8 *Buf;
 	
-	DEBUG((EFI_D_INFO, "PIO writing\n"));
+	DEBUG((EFI_D_INFO, "SprdSdhciDxe: PIO writing\n"));
 
 	Blksize = Host->Data->Blksz;
 	Chunk = 0;
@@ -372,7 +372,7 @@ SdhciTransferPio (IN SDHCI_HOST *Host)
 			break;
 	}
 
-	DEBUG((EFI_D_INFO, "PIO transfer complete.\n"));
+	DEBUG((EFI_D_INFO, "SprdSdhciDxe: PIO transfer complete.\n"));
 }
 
 STATIC
