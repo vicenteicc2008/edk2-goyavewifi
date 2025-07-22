@@ -31,7 +31,9 @@
   gSprdMmcProtocolGuid
 
 [Pcd]
-  gMSM8909PkgTokenSpaceGuid.PcdSdhciAddress
+  gMSM8909PkgTokenSpaceGuid.PcdSdhciAddressPart1
+  gMSM8909PkgTokenSpaceGuid.PcdSdhciAddressPart2
+  gMSM8909PkgTokenSpaceGuid.PcdSdhciAddressPart3
 
 [BuildOptions.ARM]
   GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-overflow -Wno-unused-variable -Wno-unused-function
