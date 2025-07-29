@@ -44,7 +44,9 @@ Based on sonic011gamer [edk2-msm8909](https://github.com/sonic011gamer/edk2-msm8
 
 SprdGpioDxe driver is from halal-beef's [edk2-exynos9830](https://github.com/halal-beef/edk2-exynos9830).
 
-some drivers like SprdClockDxe, SprdMmcDxe and SprdI2CDxe are from u-boot and linux kernel
+some drivers like SprdClockDxe, SprdMmcDxe and SprdI2CDxe are from U-Boot and Linux kernel
+
+some functions from SprdMmcDxe (like SdhciFlushBlocks) are from [Mu-Silicium](https://github.com/Project-Silicium/Mu-Silicium)
 
 DSDT and TimerDxe are from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
 
