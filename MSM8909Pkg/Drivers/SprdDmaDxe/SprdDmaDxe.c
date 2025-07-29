@@ -26,7 +26,6 @@ SprdDmaDxeInitialize (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE *SystemTable)
 {
-	
-	DEBUG((EFI_D_INFO, "SprdDmaDxe: Starting Spreadtrum DMA Driver\n"));
+	DEBUG((EFI_D_INFO, "SprdDmaDxe: Initializing Spreadtrum DMA Driver\n"));
 	return EFI_SUCCESS;
 }

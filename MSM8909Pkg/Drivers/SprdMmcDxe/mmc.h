@@ -11,6 +11,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/TimerLib.h>
 #include <Library/DevicePathLib.h>
+#include <Library/DmaLib.h>
 
 #include <Protocol/ComponentName.h>
 #include <Protocol/Cpu.h>
@@ -109,6 +110,27 @@
 
 #define SDHCI_BUFFER  0x20
 
+typedef enum {
+  UNKNOWN_CARD,
+  MMC_CARD,                        // MMC Card
+  SD_CARD,                         // SD 1.1 Card
+  SD_CARD_2,                       // SD 2.0 or Above Standard Card
+  SD_CARD_2_HIGH,                  // SD 2.0 or Above High Capacity Card
+  SD_CARD_MAX
+} CARD_TYPE;
+
+typedef struct {
+  UINTN     BlockSize;
+  UINTN     NumBlocks;
+  UINTN     TotalNumBlocks;
+  UINTN     ClockFrequencySelect;
+} CARD_INFO;
+
+typedef struct {
+  VENDOR_DEVICE_PATH  Mmc;
+  EFI_DEVICE_PATH     End;
+} SDHCI_DEVICE_PATH;
+
 struct mmc_data {
 	unsigned int		TimeoutNs;	/* data timeout (in ns, max 80ms) */
 	unsigned int		TimeoutClks;	/* data timeout (in clocks) */
@@ -146,6 +168,9 @@ typedef struct {
 	UINTN 			MaxBlkCount;	/* maximum number of blocks in one req */
 	UINT32			Caps;
 	UINT32			Caps2;
+	unsigned int		ActualClock;	/* Actual HC clock rate */
+	unsigned int		SlotNo;			/* used for sdio acpi binding */
+	
 } MMC_HOST;
 
 typedef struct {

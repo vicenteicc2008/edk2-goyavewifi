@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Dodo vi-C <vicenteicc2008@gmail.com>
+ * Copyright (c) 2024-2025, DODO vi-C <vicenteicc2008@gmail.com>
  * Based on the open source driver from edk2-tensor and the key reading code from the uniLoader fork by BotchedRPR
  */
 
@@ -12,6 +12,8 @@
 #include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/BaseMemoryLib.h>
+
+#include <Protocol/HardwareInterrupt.h>
 #include <Protocol/SprdGpio.h>
 
 #include "SprdGpio.h"

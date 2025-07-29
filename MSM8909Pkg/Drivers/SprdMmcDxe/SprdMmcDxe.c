@@ -33,6 +33,8 @@
 STATIC UINTN DebugQuirks = 0;
 STATIC UINTN DebugQuirks2;
 
+CARD_INFO       gCardInfo;
+
 EFI_BLOCK_IO_MEDIA gSdMmc0 = {
   SIGNATURE_32('e','m','m','c'),            // MediaId
   FALSE,                                     // RemovableMedia
@@ -58,6 +60,8 @@ EFI_BLOCK_IO_MEDIA gSdMmc2 = {
   0,                                        // Pad
   0                                         // LastBlock
 };
+
+
 
 extern UINT32                     gFileSyStemSize;
 
@@ -574,6 +578,35 @@ SdhciSendCmd (
 	SdhciWritew(Host, SDHCI_MAKE_CMD(Cmd->Opcode, Flags), SDHCI_COMMAND);
 }
 
+/**
+
+  Flush the Block Device.
+
+
+
+  @param  This              Indicates a pointer to the calling context.
+
+
+
+  @retval EFI_SUCCESS       All outstanding data was written to the device
+
+  @retval EFI_DEVICE_ERROR  The device reported an error while writting back the data
+
+  @retval EFI_NO_MEDIA      There is no media in the device.
+
+
+
+**/
+EFI_STATUS
+EFIAPI
+SdhciFlushBlocks (
+  IN EFI_BLOCK_IO_PROTOCOL  *This
+  )
+{
+  DEBUG ((EFI_D_INFO, "MSHC::MSHCFlushBlocks is called\n"));
+  return EFI_SUCCESS;
+}
+
 
 
 // EntryPoint for SprdSdhciDxe
@@ -594,7 +627,9 @@ SprdSdhciDxeInit (
 	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Initializing MMC/SD card\n"));
 
 	// Install BlockIO Protocol
-	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Installing Block IO Protocol\n"));
+	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Installing Block IO and Device Path Protocol\n"));
+
+	ZeroMem (&gCardInfo, sizeof (CARD_INFO));
 
 	Status = gBS->InstallMultipleProtocolInterfaces (
                   &ImageHandle,

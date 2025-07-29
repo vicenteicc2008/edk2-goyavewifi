@@ -11,7 +11,9 @@
 
 [Packages]
   MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
   ArmPkg/ArmPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
   MSM8909Pkg/MSM8909Pkg.dec
 
 [LibraryClasses]
