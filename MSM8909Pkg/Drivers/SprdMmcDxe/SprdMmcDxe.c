@@ -34,6 +34,7 @@ STATIC UINTN DebugQuirks = 0;
 STATIC UINTN DebugQuirks2;
 
 CARD_INFO       gCardInfo;
+UINTN           gSdhciBaseAddr;
 
 EFI_BLOCK_IO_MEDIA gSdMmc0 = {
   SIGNATURE_32('e','m','m','c'),            // MediaId
@@ -607,6 +608,8 @@ SdhciFlushBlocks (
   return EFI_SUCCESS;
 }
 
+// Callback functions
+
 
 
 // EntryPoint for SprdSdhciDxe
@@ -620,7 +623,7 @@ SprdSdhciDxeInit (
 {
 	EFI_STATUS  Status;
 	EFI_BLOCK_IO_PROTOCOL* SprdBlockIo;
-	SDHC_DEVICE_PATH* gSprdMmcDevicePath;
+	SDHCI_DEVICE_PATH* gSprdMmcDevicePath;
 
 	UINTN i;
 	UINT64 Lba;
@@ -628,6 +631,8 @@ SprdSdhciDxeInit (
 
 	// Install BlockIO Protocol
 	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Installing Block IO and Device Path Protocol\n"));
+
+	gSdhciBaseAddr = FixedPcdGet32(PcdSdhciAddressPart1);
 
 	ZeroMem (&gCardInfo, sizeof (CARD_INFO));
 
@@ -637,7 +642,6 @@ SprdSdhciDxeInit (
                   &gEfiDevicePathProtocolGuid, &gSprdMmcDevicePath,
                   NULL
                   );
-	ASSERT_EFI_ERROR (Status);
 
-	return EFI_SUCCESS;
+	return Status;
 }
