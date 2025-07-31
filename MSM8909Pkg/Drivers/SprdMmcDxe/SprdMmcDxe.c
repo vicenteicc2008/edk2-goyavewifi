@@ -603,7 +603,7 @@ SdhciFlushBlocks (
   IN EFI_BLOCK_IO_PROTOCOL  *This
   )
 {
-  DEBUG ((EFI_D_INFO, "MSHC::MSHCFlushBlocks is called\n"));
+  DEBUG ((EFI_D_INFO, "SprdSdhciDxe::SdhciFlushBlocks is called\n"));
   return EFI_SUCCESS;
 }
 
