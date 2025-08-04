@@ -75,8 +75,8 @@
   VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
 
   # SoC Libraries
-  # KeypadDeviceHelperLib|MSM8909Pkg/Library/KeypadDeviceHelperLib/KeypadDeviceHelperLib.inf
-  # KeypadDeviceImplLib|MSM8909Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf
+  KeypadDeviceHelperLib|MSM8909Pkg/Library/KeypadDeviceHelperLib/KeypadDeviceHelperLib.inf
+  KeypadDeviceImplLib|MSM8909Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf
 
   # SimpleFbDxe
   FrameBufferBltLib|MSM8909Pkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
@@ -232,8 +232,8 @@
   MSM8909Pkg/Drivers/SprdI2CDxe/SprdI2CDxe.inf
   # MSM8909Pkg/Drivers/SprdMmcDxe/SprdMmcDxe.inf
 
-  # MSM8909Pkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf
-  # MSM8909Pkg/Drivers/KeypadDxe/KeypadDxe.inf
+  MSM8909Pkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf
+  MSM8909Pkg/Drivers/KeypadDxe/KeypadDxe.inf
 
   #
   # Virtual Keyboard

@@ -33,8 +33,15 @@ UINT32
   UINT32 gpioNumber
   );
 
+typedef
+UINT32
+(*GPIO_SET)(
+  UINT32 Offset
+  );
+
 struct _SPRD_GPIO {
   GPIO_GET         Get;
+  GPIO_SET         Set;
 };
 
 extern EFI_GUID  gSprdGpioProtocolGuid;

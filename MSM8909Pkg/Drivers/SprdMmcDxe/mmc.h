@@ -165,7 +165,7 @@ typedef struct {
 	UINT32			Caps2;
 	unsigned int		ActualClock;	/* Actual HC clock rate */
 	unsigned int		SlotNo;			/* used for sdio acpi binding */
-	
+	unsigned long		Private[0];
 } MMC_HOST;
 
 typedef struct {
@@ -664,6 +664,11 @@ struct mmc_request {
 
 #define SDHCI_PRESENT_STATE	0x24
 #define SDHCI_CMD_INHIBIT	0x00000001
+
+STATIC inline VOID *MmcPriv(IN MMC_HOST *Host)
+{
+	return (VOID *)Host->Private;
+}
 
 #define mdelay(ms) MicroSecondDelay((ms)*1000)
 

@@ -579,6 +579,40 @@ SdhciSendCmd (
 	SdhciWritew(Host, SDHCI_MAKE_CMD(Cmd->Opcode, Flags), SDHCI_COMMAND);
 }
 
+// Callback functions
+
+STATIC
+VOID
+SdhciRequest (
+  IN MMC_HOST *Mmc,
+  struct mmc_request *Mrq
+  ) 
+{
+	IN SDHCI_HOST *Host;
+	int Present;
+	unsigned long Flags;
+	UINT32 TuningOpcode;
+	
+	Host = MmcPriv(Mmc);
+	
+	SdhciActivateLed(Host);
+
+	/*
+	 * Ensure we don't send the STOP for non-SET_BLOCK_COUNTED
+	 * requests if Auto-CMD12 is enabled.
+	 */
+	if (!Mrq->Sbc && (Host->flags & SDHCI_AUTO_CMD12)) {
+		if (Mrq->Stop) {
+			Mrq->Data->Stop = NULL;
+			Mrq->Stop = NULL;
+		}
+	}
+
+	Host->Mrq = Mrq;
+
+	
+}
+
 /**
 
   Flush the Block Device.
@@ -607,10 +641,6 @@ SdhciFlushBlocks (
   DEBUG ((EFI_D_INFO, "SprdSdhciDxe::SdhciFlushBlocks is called\n"));
   return EFI_SUCCESS;
 }
-
-// Callback functions
-
-
 
 // EntryPoint for SprdSdhciDxe
 

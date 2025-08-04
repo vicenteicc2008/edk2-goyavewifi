@@ -22,12 +22,53 @@ enum gpio_die {
 	D_DIE = 1,
 };
 
+#define SPRD_GPIO_BASE			SCI_IOMAP(0x220000)
+#define SPRD_GPIO_PHYS			0X40280000
+
+#define SPRD_EIC_BASE			SCI_IOMAP(0x200000)
+#define SPRD_EIC_PHYS			0X40210000
+
+#define SPRD_ADISLAVE_BASE			SCI_IOMAP(0x3f0000 + SZ_32K)
+#define SPRD_ADISLAVE_PHYS			0X40038000
+
+#define	D_GPIO_START	0
+#define	D_GPIO_NR		256
+
+#define	A_GPIO_START	( D_GPIO_START + D_GPIO_NR )
+#define	A_GPIO_NR		32
+
+#define	D_EIC_START		( A_GPIO_START + A_GPIO_NR)
+#define	D_EIC_NR		16
+
+#define	A_EIC_START		( D_EIC_START + D_EIC_NR )
+#define	A_EIC_NR		16
+
+#define ARCH_NR_GPIOS	( D_EIC_NR + D_GPIO_NR + A_EIC_NR + A_GPIO_NR )
+
+#define ANA_EIC_BASE			(SPRD_ADISLAVE_BASE + 0x100 )
+#define ANA_GPIO_INT_BASE		(SPRD_ADISLAVE_BASE + 0x480 )
+
+#define CTL_GPIO_BASE          (SPRD_GPIO_BASE)
+#define CTL_EIC_BASE           (SPRD_EIC_BASE)
+
+#define ANA_CTL_EIC_BASE	   (ANA_EIC_BASE)
+#define ANA_CTL_GPIO_BASE      (ANA_GPIO_INT_BASE)
+
+#define IRQ_GIC_START			(32)
+#define NR_SCI_PHY_IRQS			(IRQ_GIC_START + 125)
+
+#define SCI_IRQ(_X_)			(IRQ_GIC_START + (_X_))
+#define SCI_EXT_IRQ(_X_)		(NR_SCI_PHY_IRQS + (_X_))
+
+#define GPIO_IRQ_START			SCI_EXT_IRQ(11)
+#define NR_GPIO_IRQS	( 320 )
+
 #define NR_D_DIE_GPIOS 10
 
 #define GPIO_MAX_PIN_NUM            271
 #define GPIO_MAX_REC_NUM            10
 
-#define SCI_IOMAP_BASE	0xEB000000
+#define SCI_IOMAP_BASE	0xF5000000
 #define SCI_IOMAP(x)	(SCI_IOMAP_BASE + (x))
 #define SPRD_ADI_BASE			SCI_IOMAP(0x1f0000)
 #define SPRD_ADI_PHYS			0X40030000
@@ -38,8 +79,6 @@ enum gpio_die {
 #define SPRD_ANA_GPIO_PHYS						(SPRD_MISC_PHYS + 0x8480)
 #define ANA_GPIO_BASE                           SPRD_ANA_GPIO_PHYS
 
-#define SPRD_GPIO_BASE							SCI_IOMAP(0x220000)
-#define SPRD_GPIO_PHYS							0X40280000
 #define GPIO_BASE                               SPRD_GPIO_PHYS
 
 #define GPI_DATA                        0x0000    //GPI data register, original input signal, not through de-bounce path.

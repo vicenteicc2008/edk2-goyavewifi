@@ -24,6 +24,6 @@ struct _KEYPAD_DEVICE_PROTOCOL {
   KEYPAD_GET_KEYS  GetKeys;
 };
 
-extern EFI_GUID gEFIDroidKeypadDeviceProtocolGuid;
+extern EFI_GUID gSc8830KeypadDeviceProtocolGuid;
 
 #endif
