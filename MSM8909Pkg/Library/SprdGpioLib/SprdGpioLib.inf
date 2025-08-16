@@ -1,8 +1,6 @@
 #/** @file
 #
-#    Component discription file for Timer module
-#
-#  Copyright (c) 2012, Spreadtrum Communications Inc. All rights reserved.<BR>
+#  Copyright (c) 2014, Spreadtrum Communications Inc. All rights reserved.<BR>
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
 #  which accompanies this distribution.  The full text of the license may be found at
@@ -15,41 +13,26 @@
 
 [Defines]
   INF_VERSION                    = 0x00010005
-  BASE_NAME                      = TimerDxe
-  FILE_GUID                      = 494ffd22-3228-4b7e-ad40-7e780fa88301
-  MODULE_TYPE                    = DXE_DRIVER
+  BASE_NAME                      = SprdGpioLib
+  FILE_GUID                      = EEFF5291-3573-4AC8-B0C6-9731DFA9E243
+  MODULE_TYPE                    = UEFI_DRIVER
   VERSION_STRING                 = 1.0
-
-  ENTRY_POINT                    = TimerInitialize
+  LIBRARY_CLASS                  = SprdGpioLib
 
 [Sources.common]
-  TimerDxe.c
+  SprdGpioLib.c
 
 [Packages]
   MdePkg/MdePkg.dec
   EmbeddedPkg/EmbeddedPkg.dec
-  ArmPkg/ArmPkg.dec
-  ArmPlatformPkg/ArmPlatformPkg.dec
   MSM8909Pkg/MSM8909Pkg.dec
 
-
 [LibraryClasses]
-  BaseLib
-  IoLib
-  UefiBootServicesTableLib
-  UefiDriverEntryPoint
   DebugLib
+  IoLib
+
+[Protocols]
 
 [Guids]
 
-[Protocols]
-  gEfiTimerArchProtocolGuid
-  gHardwareInterruptProtocolGuid
-
-
-[Pcd.common]
-  gEmbeddedTokenSpaceGuid.PcdTimerPeriod
-  gMSM8909PkgTokenSpaceGuid.PcdTimerBase
-
-[Depex]
-  gHardwareInterruptProtocolGuid
+[Pcd]

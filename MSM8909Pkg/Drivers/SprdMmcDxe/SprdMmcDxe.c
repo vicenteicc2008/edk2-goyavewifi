@@ -651,23 +651,47 @@ SprdSdhciDxeInit (
   IN EFI_SYSTEM_TABLE   *SystemTable
   )
 {
-	EFI_STATUS  Status;
-	EFI_BLOCK_IO_PROTOCOL* SprdBlockIo;
-	SDHCI_DEVICE_PATH* gSprdMmcDevicePath;
-
-	UINTN i;
+	EFI_STATUS  		   Status;
+	EFI_HANDLE             Handle = NULL;
+	EFI_BLOCK_IO_PROTOCOL *SprdBlockIo;
+	EFI_BLOCK_IO_MEDIA    *BlockIoMedia;
+	SDHCI_DEVICE_PATH	  *gSprdMmcDevicePath;
 	UINT64 Lba;
+
 	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Initializing MMC/SD card\n"));
+
+	// Get eMMC Address from PCD
+	gSdhciBaseAddr = FixedPcdGet32(PcdSdhciAddressPart1);
+
+	SprdBlockIo = AllocateZeroPool(sizeof(EFI_BLOCK_IO_PROTOCOL));
+	if (SprdBlockIo == NULL) {
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	BlockIoMedia = AllocateZeroPool(sizeof(EFI_BLOCK_IO_MEDIA));
+	if (BlockIoMedia == NULL) {
+		FreePool(SprdBlockIo);
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	BlockIoMedia->MediaId = 1;
+	BlockIoMedia->RemovableMedia = FALSE; // or TRUE if SD Card
+	BlockIoMedia->MediaPresent = TRUE;
+	BlockIoMedia->LogicalPartition = FALSE;
+	BlockIoMedia->ReadOnly = FALSE;
+	BlockIoMedia->WriteCaching = FALSE;
+	BlockIoMedia->BlockSize = 512; // typically 512; if your card is different, adjust
+	BlockIoMedia->LastBlock = (EFI_LBA)(Lba ? (Lba - 1) : 0); // Last LBA = total_blocks - 1
+
+	SprdBlockIo->Revision = EFI_BLOCK_IO_PROTOCOL_REVISION;
+	SprdBlockIo->Media = BlockIoMedia;
+	SprdBlockIo->FlushBlocks = SdhciFlushBlocks; // if applies, or NULL
 
 	// Install BlockIO Protocol
 	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Installing Block IO and Device Path Protocol\n"));
 
-	gSdhciBaseAddr = FixedPcdGet32(PcdSdhciAddressPart1);
-
-	ZeroMem (&gCardInfo, sizeof (CARD_INFO));
-
 	Status = gBS->InstallMultipleProtocolInterfaces (
-                  &ImageHandle,
+				  &Handle, &ImageHandle,
                   &gEfiBlockIoProtocolGuid, &SprdBlockIo,
                   &gEfiDevicePathProtocolGuid, &gSprdMmcDevicePath,
                   NULL

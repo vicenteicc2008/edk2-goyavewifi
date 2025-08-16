@@ -9,14 +9,15 @@
 typedef struct {
   KEY_CONTEXT EfiKeyContext;
   UINT32 PinctrlBase;
-  UINT32 BankOffset;
-  UINT32 PinNum;
+  UINT32 Gpio;
 } KEY_CONTEXT_PRIVATE;
 
 STATIC KEY_CONTEXT_PRIVATE KeyContextVolumeDown;
+STATIC KEY_CONTEXT_PRIVATE KeyContextVolumeUp;
 
 STATIC KEY_CONTEXT_PRIVATE* KeyList[] = {
-  &KeyContextVolumeDown
+  &KeyContextVolumeDown,
+  &KeyContextVolumeUp
 };
 
 STATIC
@@ -26,8 +27,7 @@ KeypadInitializeKeyContextPrivate (
   )
 {
   Context->PinctrlBase = 0;
-  Context->BankOffset  = 0;
-  Context->PinNum      = 0;
+  Context->Gpio      = 0;
 }
 
 STATIC
@@ -36,8 +36,10 @@ KeypadKeyCodeToKeyContext (
   UINT32 KeyCode
   )
 {
-  if (KeyCode == 102){
+  if (KeyCode == 114){
     return &KeyContextVolumeDown;
+  }else if (KeyCode == 115){
+    return &KeyContextVolumeUp;
   }else
     return NULL;
 }
@@ -58,11 +60,15 @@ KeypadDeviceImplConstructor (
 
   // Configure keys
 
-  // home (gpio2)
-  StaticContext              = KeypadKeyCodeToKeyContext(102);
-  StaticContext->PinctrlBase = 0xf5224000;
-  StaticContext->BankOffset  = 0;
-  StaticContext->PinNum      = 113;
+  // Volume Down
+  StaticContext              = KeypadKeyCodeToKeyContext(114);
+  StaticContext->PinctrlBase = 0xf5208000;
+  StaticContext->Gpio      = 114;
+
+  // Volume Up
+  StaticContext              = KeypadKeyCodeToKeyContext(115);
+  StaticContext->PinctrlBase = 0xf5208000;
+  StaticContext->Gpio      = 115;
 
   return RETURN_SUCCESS;
 }
@@ -85,11 +91,11 @@ EFI_STATUS KeypadDeviceImplGetKeys (KEYPAD_DEVICE_PROTOCOL *This, KEYPAD_RETURN_
 
         IsPressed = FALSE;
 
-  		UINT32 PinAddr = ((Context->PinctrlBase + Context->BankOffset) + 0x4);
+  		UINT32 PinAddr = ((Context->PinctrlBase) + 0x4);
 
         UINT32 PinState = MmioRead32(PinAddr);
 
-        if ( !(PinState & (1 << Context->PinNum)) ) {
+        if ( !(PinState & (1 << Context->Gpio)) ) {
         	IsPressed = TRUE;
         }
 

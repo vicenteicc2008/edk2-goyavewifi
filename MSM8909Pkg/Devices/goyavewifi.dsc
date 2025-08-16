@@ -34,7 +34,7 @@
 
   # Timer
   gMSM8909PkgTokenSpaceGuid.PcdTimerBase|0xf5204000
-  
+
   # SPRD eMMC/SD card
   gMSM8909PkgTokenSpaceGuid.PcdSdhciAddressPart1|0xF511C000
   gMSM8909PkgTokenSpaceGuid.PcdSdhciAddressPart2|0xF5117000

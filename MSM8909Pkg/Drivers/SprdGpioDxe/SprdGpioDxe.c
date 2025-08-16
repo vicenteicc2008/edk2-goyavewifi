@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2024-2025, DODO vi-C <vicenteicc2008@gmail.com>
- * Based on the open source driver from edk2-tensor, the key reading code from the uniLoader fork by BotchedRPR and GPIO code from linux kernel by Thunderoar
+ * Based on the open source driver from edk2-exynos9830 by halal-beef, the key reading code from the uniLoader fork by BotchedRPR and GPIO code from linux kernel by Thunderoar
  */
 
 #include <Uefi.h>
@@ -9,6 +9,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/DebugLib.h>
 #include <Library/IoLib.h>
+#include <Library/DebugLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/BaseMemoryLib.h>

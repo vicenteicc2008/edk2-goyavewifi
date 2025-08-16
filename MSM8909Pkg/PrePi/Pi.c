@@ -30,7 +30,7 @@ VOID UartInit(VOID)
 
   DEBUG((EFI_D_INFO, "\nEDK2 on Galaxy Tab E 7.0 3G/WIFI (ARM)\n"));
   DEBUG(
-      (EFI_D_INFO, "Spreadtrum UEFI Firmware version %s built %a %a\n\n",
+      (EFI_D_INFO, "Spreadtrum UEFI firmware version %s built %a %a\n\n",
        (CHAR16 *)PcdGetPtr(PcdFirmwareVersionString), __TIME__, __DATE__));
 }
 
