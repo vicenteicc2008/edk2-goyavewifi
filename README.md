@@ -1,4 +1,4 @@
-Attempt to create a minimal EDK2 for Samsung Galaxy Tab E 7.0 WIFI (SM-T113NU) but should work on SM-T116 (3G Version)
+Attempt to create a minimal EDK2 for Samsung Galaxy Tab E 7.0 WIFI (SM-T113NU) but should work on SM-T116 (3G variant)
 
 ## Status
 Boots to UEFI Shell but buttons, eMMC and USB are not working.
