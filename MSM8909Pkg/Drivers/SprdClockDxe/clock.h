@@ -1,115 +1,227 @@
+/*
+ * Copyright (C) 2013 Spreadtrum Communications Inc.
+ * Copyright (C) 2024-2025 Vicente Cortés <vicenteicc2008@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
+
 #ifndef CLOCK_H
 #define CLOCK_H
 
 #include <Shim/list.h>
 #include <Shim/Uboot.h>
+#include <SC8830/reg.h>
 
-struct Module
-{
-	UINT32 Module;
-};
+#define PRE_RATE_CHANGE			BIT(0)
+#define POST_RATE_CHANGE		BIT(1)
+#define ABORT_RATE_CHANGE		BIT(2)
 
-struct mutex
-{
-  int data;
-};
+/*
+ * flags used across common struct clk.  these flags should only affect the
+ * top-level framework.  custom flags for dealing with hardware specifics
+ * belong in struct clk_foo
+ */
+#define CLK_SET_RATE_GATE	BIT(0) /* must be gated across rate change */
+#define CLK_SET_PARENT_GATE	BIT(1) /* must be gated across re-parent */
+#define CLK_SET_RATE_PARENT	BIT(2) /* propagate rate change up one level */
+#define CLK_IGNORE_UNUSED	BIT(3) /* do not gate even if unused */
+#define CLK_IS_ROOT		BIT(4) /* root clk, has no parent */
+#define CLK_IS_BASIC		BIT(5) /* Basic clk, can't do a to_clk_foo() */
+#define CLK_GET_RATE_NOCACHE	BIT(6) /* do not use the cached clk rate */
+
+typedef struct {
+	CONST CHAR8		*Name;
+	CONST CHAR8		**ParentNames;
+	UINT8			NumParents;
+} CLK_INIT_DATA;
 
 struct Clk;
-struct ClkLookup
+typedef struct {
+	struct Clk *Clk;
+	CONST CLK_INIT_DATA *Init;
+} CLK_HW;
+
+typedef struct {
+	CLK_HW  Hw;
+	unsigned long	FixedRate;
+} CLK_FIXED_RATE;
+
+typedef struct {
+	CLK_HW Hw;
+	VOID	*Reg;
+	UINT8		BitIdx;
+} CLK_GATE;
+
+#define CLK_GATE_SET_TO_DISABLE		BIT(0)
+
+typedef struct {
+	UINTN	Val;
+	UINTN	Div;
+} CLK_DIV_TABLE;
+
+typedef struct {
+	CLK_HW	HW;
+	VOID		*Reg;
+	UINT8		Shift;
+	UINT8		Width;
+	UINT8		Flags;
+	CONST CLK_DIV_TABLE	*Table;
+	SPIN_LOCK   *Lock;
+} CLK_DIVIDER;
+
+#define CLK_DIVIDER_ONE_BASED		BIT(0)
+#define CLK_DIVIDER_POWER_OF_TWO	BIT(1)
+#define CLK_DIVIDER_ALLOW_ZERO		BIT(2)
+
+typedef struct {
+	CLK_HW	HW;
+	VOID	*Reg;
+	UINT32		*Table;
+	UINT32		Mask;
+	UINT8		Shift;
+	UINT8		Flags;
+	SPIN_LOCK   *Lock;
+} CLK_MUX;
+
+#define CLK_MUX_INDEX_ONE		BIT(0)
+#define CLK_MUX_INDEX_BIT		BIT(1)
+
+typedef struct {
+	CLK_HW	HW;
+	UINTN	Mult;
+	UINTN	Div;
+} CLK_FIXED_FACTOR;
+
+typedef struct {
+	UINTN CLK_NUM;
+} CLK_ONECELL_DATA;
+
+#define HWSPINLOCK_ID_TOTAL_NUMS	(64)
+#define HWLOCK_ADI	(0)
+#define HWLOCK_GLB	(1)
+#define HWLOCK_AGPIO	(2)
+#define HWLOCK_AEIC	(3)
+#define HWLOCK_ADC	(4)
+#define HWLOCK_EFUSE	(8)
+
+/* registers definitions for controller REGS_AP_AHB */
+#define REG_AON_CLK_PUB_AHB_CFG         SCI_ADDR(REGS_AON_CLK_BASE, 0x0020)
+#define REG_AON_APB_APB_EB0             SCI_ADDR(REGS_AON_APB_BASE, 0x0000)
+#define REG_AON_APB_APB_EB1             SCI_ADDR(REGS_AON_APB_BASE, 0x0004)
+#define REG_AP_AHB_AHB_RST              SCI_ADDR(REGS_AP_AHB_BASE, 0x0004)
+#define REG_AP_AHB_CA7_RST_SET          SCI_ADDR(REGS_AP_AHB_BASE, 0x0008)
+#define REG_AP_AHB_CA7_CKG_CFG          SCI_ADDR(REGS_AP_AHB_BASE, 0x000C)
+#define REG_AP_AHB_MCU_PAUSE            SCI_ADDR(REGS_AP_AHB_BASE, 0x0010)
+#define REG_AP_AHB_MISC_CKG_EN          SCI_ADDR(REGS_AP_AHB_BASE, 0x0014)
+#define REG_AP_AHB_MISC_CFG             SCI_ADDR(REGS_AP_AHB_BASE, 0x0018)
+#define REG_AP_AHB_AP_MTX_S3_PRIO0      SCI_ADDR(REGS_AP_AHB_BASE, 0x001C)
+#define REG_AP_AHB_AP_MTX_S3_PRIO1      SCI_ADDR(REGS_AP_AHB_BASE, 0x0020)
+#define REG_AP_AHB_AP_MTX_S3_PRIO2      SCI_ADDR(REGS_AP_AHB_BASE, 0x0024)
+#define REG_AP_AHB_AP_MTX_S2_PRIO0      SCI_ADDR(REGS_AP_AHB_BASE, 0x0028)
+#define REG_AP_AHB_AP_MTX_S1_PRIO0      SCI_ADDR(REGS_AP_AHB_BASE, 0x002C)
+#define REG_AP_AHB_AP_MTX_S0_PRIO0      SCI_ADDR(REGS_AP_AHB_BASE, 0x0030)
+#define REG_AP_AHB_AP_MTX_S0_PRIO1      SCI_ADDR(REGS_AP_AHB_BASE, 0x0034)
+#define REG_AP_AHB_AP_MTX_S0_PRIO2      SCI_ADDR(REGS_AP_AHB_BASE, 0x0038)
+#define REG_AP_AHB_AP_SYS_FORCE_SLEEP_CFG SCI_ADDR(REGS_AP_AHB_BASE, 0x003C)
+#define REG_AP_AHB_AP_SYS_AUTO_SLEEP_CFG SCI_ADDR(REGS_AP_AHB_BASE, 0x0040)
+#define REG_AP_AHB_AP_MAIN_MTX_HPROT_CFG SCI_ADDR(REGS_AP_AHB_BASE, 0x0044)
+#define REG_AP_AHB_CA7_STANDBY_STATUS   SCI_ADDR(REGS_AP_AHB_BASE, 0x0048)
+#define REG_AP_AHB_HOLDING_PEN          SCI_ADDR(REGS_AP_AHB_BASE, 0x004C)
+#define REG_AP_AHB_JMP_ADDR_CA7_C0      SCI_ADDR(REGS_AP_AHB_BASE, 0x0050)
+#define REG_AP_AHB_JMP_ADDR_CA7_C1      SCI_ADDR(REGS_AP_AHB_BASE, 0x0054)
+#define REG_AP_AHB_JMP_ADDR_CA7_C2      SCI_ADDR(REGS_AP_AHB_BASE, 0x0058)
+#define REG_AP_AHB_JMP_ADDR_CA7_C3      SCI_ADDR(REGS_AP_AHB_BASE, 0x005C)
+#define REG_AP_AHB_CHIP_ID              SCI_ADDR(REGS_AP_AHB_BASE, 0x00FC)
+
+// Raw helpers: use full mask (0xFFFFFFFFUL) to avoid -1UL signed surprises
+#define SciGlbRawRead(Reg)           SciGlbRead((UINTN)(Reg), 0xFFFFFFFFUL)
+#define SciGlbRawWrite(Reg, Val)     SciGlbWrite((UINTN)(Reg), (UINT32)(Val), 0xFFFFFFFFUL)
+
+typedef struct {
+    INTN Data;
+} Mutex;
+
+typedef struct
 {
 	struct list_head Node;
-	const char*      DevId;
-	const char*      ConId;
+	CONST CHAR8      DevId;
+	CONST CHAR8      ConId;
 	struct Clk*      Clk;
-};
+} ClkLookup;
 
-struct ClkReg {
+typedef struct {
 	UINT32 Reg;
-	//unsigned short shift, size;
 	UINT32 Mask;
-};
+} ClkReg;
 
-struct ClkRegs {
-	int Id;
-	const char *Name;
-	struct ClkReg Enb, Div, Sel;
+typedef struct {
+	INTN Id;
+	CONST CHAR8 *Name;
+	ClkReg Enb, Div, Sel;
 
-	//pll sources select
-	int NrSources;
+	/* pll sources select */
+	INTN NrSources;
 	struct Clk *Sources[10];
-};
+} ClkRegs;
 
-#define MAX_ERRNO		4095
+#define MAX_ERRNO			4095
 #define IS_ERR_VALUE(x)		((x) >= (unsigned long)-MAX_ERRNO)
 
-static inline long IS_ERR_OR_NULL(const void *ptr)
+STATIC inline long IS_ERR_OR_NULL(CONST VOID *ptr)
 {
 	return !ptr || IS_ERR_VALUE((unsigned long)ptr);
 }
 
-/**
- * struct ClkSel - list of sources for a given clock (pll)
- * @Sources: array of pointers to clocks
- * @NrSources: The size of @sources
- */
-struct ClkSel {
-	int NrSources;
+typedef struct {
+	INTN NrSources;
 	UINT32 Sources[];
-};
+} ClkSel;
 
-struct ClkOps {
+typedef struct {
+	int		(*Prepare)(CLK_HW *Hw);
+	VOID		(*Unprepare)(CLK_HW *Hw);
+	int		(*IsPrepared)(CLK_HW *Hw);
+	int		(*Enable)(CLK_HW *Hw);
+	VOID		(*Disable)(CLK_HW *Hw);
+	int		(*IsEnabled)(CLK_HW *Hw);
 	int (*SetRate) (struct Clk * c, unsigned long Rate);
 	unsigned long (*GetRate) (struct Clk * c);
-	unsigned long (*RoundRate) (struct Clk * c, unsigned long Rate);
-	int (*SetParent) (struct Clk * c, struct Clk * Parent);
-};
+	unsigned long	(*RecalcRate)(CLK_HW *Hw, unsigned long ParentRate);
+	long (*RoundRate) (CLK_HW *Hw, unsigned long, unsigned long *);
+	int (*SetParent) (CLK_HW * Hw, UINT8 Index);
+	UINT8 (*GetParent)(CLK_HW *Hw);
+} CLK_OPS;
+
+extern CONST CLK_OPS CLK_MUX_OPS;
+extern CONST CLK_OPS CLK_DIVIDER_OPS;
 
 struct Clk {
-	struct Module *Owner;
+	CLK_HW *Hw;
+	CONST CLK_OPS *Ops;
 	struct Clk *Parent;
-	int Usage;
-	unsigned long Rate;
-	struct ClkOps *Ops;
+	UINT8 NumParents;
+	INTN Usage;
+	UINT32 Rate;
+	UINT32 Flags;
 	int (*Enable) (struct Clk *, int Enable, unsigned long *);
 
-	const struct ClkRegs *Regs;
+	CONST ClkRegs *Regs;
+	CONST CHAR8   *Name;
 };
 
-#define MAX_DIV							(1000)
+#define MAX_DIV					(1000)
 
-#define SCI_CLK_ADD(ID, RATE, ENB, ENB_BIT, DIV, DIV_MSK, SEL, SEL_MSK, NR_CLKS, ...)        \
-static const struct ClkRegs REGS_##ID = {  \
-	.name = #ID,                            \
-	.id = 0,                                \
-	.enb = {                                \
-		.reg = (UINT32)ENB,.mask = ENB_BIT,      	\
-		},                                  \
-	.div = {                                \
-		.reg = (UINT32)DIV,.mask = DIV_MSK,			\
-		},                                  \
-	.sel = {                                \
-		.reg = (UINT32)SEL,.mask = SEL_MSK,			\
-		},                                  \
-	.nr_sources = NR_CLKS,                  \
-	.sources = {__VA_ARGS__},               \
-};                                          \
-static struct Clk ID = {              		\
-	.owner = THIS_MODULE,                   \
-	.parent = 0,                            \
-	.usage = 0,                             \
-	.rate = RATE,                           \
-	.regs = &REGS_##ID,                     \
-	.ops = 0,                               \
-	.enable = 0,                            \
-};                                          \
-const struct ClkLookup __clkinit1 CLK_LK_##ID = { \
-	.dev_id = 0,							\
-	.con_id = #ID,                          \
-	.clk = &ID,                       		\
-};                                       	\
-
-#define spin_lock_irqsave(lock, cpu_sr) do {*lock=0;cpu_sr=1;}while(0)
-#define spin_unlock_irqrestore(lock, cpu_sr) do {*lock=0;int i=cpu_sr;cpu_sr=i;}while(0)
+#define spin_lock_irqsave(lock, cpu_sr) do { *(lock)=0; (cpu_sr)=1; } while(0)
+#define spin_unlock_irqrestore(lock, cpu_sr) do { *(lock)=0; (void)(cpu_sr); } while(0)
 
 typedef struct {
   UINT32 Cpu;
@@ -118,4 +230,4 @@ typedef struct {
   UINT32 Flags;
 } CPUFREQ_FREQS;
 
-#endif
+#endif // CLOCK_H

@@ -7,22 +7,7 @@
 typedef struct _SPRD_SC8830_CLOCK_PROTOCOL_GUID SPRD_SC8830_CLOCK_PROTOCOL_GUID;
 
 struct _SPRD_CLOCK_PROTOCOL_GUID {
-	int ClkEnable;
-	int ClkDisable;
-	int ClkForceDisable;
-	unsigned long ClkGetRate;
-	long ClkRoundRate;
-	int ClkSetRate;
-	int ClkSetParent;
-	int SciClkEnable;
-	int SciClkIsEnable;
-	int SciClkSetRate;
-	unsigned long SciClkGetRate;
-	unsigned long SciPllGetRefinRate;
-	unsigned long SciPllGetRate;
-	int SciClkSetParent;
-	int SciClkGetParent;
-	int SciClkRegister;
+	INTN SciClkRegister;
 };
 
 extern EFI_GUID gSprdClockProtocolGuid;

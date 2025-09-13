@@ -1,0 +1,2 @@
+URL:    https://github.com/Thunderoar/latest_goyave_kernel/blob/master/drivers/clk/clk-sc.c
+BRANCH: master

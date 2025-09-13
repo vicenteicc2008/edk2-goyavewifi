@@ -143,7 +143,7 @@ SMBIOS_TABLE_TYPE1 mSysInfoType1 = {
 };
 CHAR8  *mSysInfoType1Strings[] = {
   "Samsung Galaxy Tab E 7.0",
-  "SM-T113NU",
+  "SM-T113NU/SM-T116BU",
   "",
   "0bc52bb9-9473-4875-be2a-3973076c20e2",
   "",
@@ -177,7 +177,7 @@ SMBIOS_TABLE_TYPE2  mBoardInfoType2 = {
 };
 CHAR8  *mBoardInfoType2Strings[] = {
   "Samsung Galaxy Tab E 7.0",
-  "SM-T113NU",
+  "SM-T113NU/SM-T116BU",
   "",
   "0bc52bb9-9473-4875-be2a-3973076c20e2",
   "",

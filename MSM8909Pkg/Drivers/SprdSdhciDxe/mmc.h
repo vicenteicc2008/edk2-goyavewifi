@@ -18,6 +18,9 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/DevicePath.h>
 
+#include <Protocol/SprdClock.h>
+
+
 #include "ioctl.h"
 
 #define CONFIG_GENERIC_MMC
@@ -32,6 +35,9 @@
 #define  SDHCI_DATA_AVAILABLE	0x00000800
 
 #define SDHCI_TIMEOUT_DIVIDE_VALUE	3
+
+#define SPRD_SDHCI_HOST_DEFAULT_CLOCK 26000000
+#define SDHCI_FIX_PRE_COUNT			  15
 
 #define REGULATOR_EVENT_ENABLE 		0x00
 
@@ -149,6 +155,8 @@ struct mmc_data {
 };
 
 typedef struct {
+	EFI_BLOCK_IO_PROTOCOL BlockIo;
+    EFI_BLOCK_IO_MEDIA    Media;
 	INTN			index;
 	UINTN			f_min;
 	UINTN			f_max;
@@ -263,6 +271,7 @@ typedef struct {
 	UINTN clk_mul;	/* Clock Muliplier value */
 	UINTN clock;
 	UINT8 pwr;
+	BOOLEAN RuntimeSuspended;	/* Host is runtime suspended */
 	UINTN BaseAddress;
 	unsigned int		Blocks;		/* number of blocks */
 	struct MMC_HOST *Mmc;
@@ -270,8 +279,10 @@ typedef struct {
 	struct mmc_data		*Data;
 	unsigned int DataEarly:1;
 	struct mmc_request	*Mrq;		/* associated request */
-
+	
 } SDHCI_HOST;
+
+#define Mmiowb()
 
 struct mmc_ios {
 	UINTN	clock;			/* clock rate */

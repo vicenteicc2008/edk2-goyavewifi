@@ -128,7 +128,6 @@ READ_LOCK_STATUS   = TRUE
   INF MSM8909Pkg/Drivers/SprdClockDxe/SprdClockDxe.inf
   INF MSM8909Pkg/Drivers/SprdDmaDxe/SprdDmaDxe.inf
   INF MSM8909Pkg/Drivers/SprdI2CDxe/SprdI2CDxe.inf
-  # INF MSM8909Pkg/Drivers/SprdMmcDxe/SprdMmcDxe.inf
 
   #
   # Buttons
@@ -175,6 +174,7 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   INF FatPkg/EnhancedFatDxe/Fat.inf
   INF MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+  INF MSM8909Pkg/Drivers/SprdSdhciDxe/SprdSdhciDxe.inf
   INF MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
 
   INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf

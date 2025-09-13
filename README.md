@@ -48,6 +48,6 @@ some drivers like SprdClockDxe, SprdMmcDxe and SprdI2CDxe are from U-Boot and Li
 
 some functions from SprdMmcDxe (like SdhciFlushBlocks) are from [Mu-Silicium](https://github.com/Project-Silicium/Mu-Silicium)
 
-DSDT and TimerDxe are from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
+DSDT and TimerDxe (disabled for now) are from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
 
 Dominduchami for some changes for 16 Bpp FB in [HtcLeoPkg](https://github.com/HTC-Leo-Revival-Project/HtcLeoPkg) which are not used but i used it.

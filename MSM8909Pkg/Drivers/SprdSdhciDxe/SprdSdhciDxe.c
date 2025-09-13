@@ -35,6 +35,24 @@ STATIC UINTN DebugQuirks2;
 
 CARD_INFO       gCardInfo;
 UINTN           gSdhciBaseAddr;
+UINTN           gSdhciBaseAddr2;
+UINTN           gSdhciBaseAddr3;
+
+SDHCI_DEVICE_PATH SdhciDevicePath = {
+  {
+    HARDWARE_DEVICE_PATH,
+    HW_VENDOR_DP,
+    (UINT8)(sizeof(VENDOR_DEVICE_PATH)),
+    (UINT8)((sizeof(VENDOR_DEVICE_PATH)) >> 8),
+    0
+  },
+  {
+    END_DEVICE_PATH_TYPE,
+    END_ENTIRE_DEVICE_PATH_SUBTYPE,
+    sizeof (EFI_DEVICE_PATH_PROTOCOL),
+    0
+  }
+};
 
 EFI_BLOCK_IO_MEDIA gSdMmc0 = {
   SIGNATURE_32('e','m','m','c'),            // MediaId
@@ -90,10 +108,10 @@ STATIC VOID SdhciDumpRegs(SDHCI_HOST *host)
     UINT32 i, regAddr;
     UINT32 val1, val2, val3, val4;
 
-    DEBUG((EFI_D_INFO, "SprdSdhciDxe: =========== REGISTER DUMP ===========\n"));
+    DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: =========== REGISTER DUMP ===========\n"));
 
     // Imprimir nombre del host si tienes un campo que lo contenga
-    DEBUG((EFI_D_INFO, "SprdSdhciDxe: Host Address: 0x%p\n", host));
+    DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: Host Address: 0x%p\n", host));
 
     regAddr = SDHCI_DMA_ADDRESS;
 
@@ -104,24 +122,24 @@ STATIC VOID SdhciDumpRegs(SDHCI_HOST *host)
         val3 = MmioRead32(host->ioaddr + regAddr + 8 + 16 * i);
         val4 = MmioRead32(host->ioaddr + regAddr + 12 + 16 * i);
 
-        DEBUG((EFI_D_ERROR, "SprdSdhciDxe: 0x%08x | 0x%08x | 0x%08x | 0x%08x\n",
+        DEBUG((EFI_D_ERROR, "[SprdSdhciDxe]: 0x%08x | 0x%08x | 0x%08x | 0x%08x\n",
                     val1, val2, val3, val4));
     }
 
     // Volcar registros adicionales
-    DEBUG((EFI_D_ERROR, "SprdSdhciDxe: 0x%08x | 0x%08x | 0x%08x\n",
+    DEBUG((EFI_D_ERROR, "[SprdSdhciDxe]: 0x%08x | 0x%08x | 0x%08x\n",
                 MmioRead32(host->ioaddr + 0x80),
                 MmioRead32(host->ioaddr + 0x84),
                 MmioRead32(host->ioaddr + 0x88)));
 
     // Verificar si se usa ADMA
     if (host->flags & 0x01) {  // Asumimos que SDHCI_USE_ADMA está representado por 0x01
-        DEBUG((EFI_D_ERROR, "SprdSdhciDxe: ADMA Err: 0x%08x | ADMA Ptr: 0x%08x\n",
+        DEBUG((EFI_D_ERROR, "[SprdSdhciDxe]: ADMA Err: 0x%08x | ADMA Ptr: 0x%08x\n",
                     MmioRead32(host->ioaddr + SDHCI_ADMA_ERROR),
                     MmioRead32(host->ioaddr + SDHCI_ADMA_ADDRESS)));
     }
 
-    DEBUG((EFI_D_INFO, "SprdSdhciDxe: ==========================================\n"));
+    DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: ==========================================\n"));
 }
 
 // Low level functions
@@ -184,16 +202,24 @@ STATIC VOID SdhciDisableCardDetection(IN SDHCI_HOST *Host)
 	SdhciSetCardDetection(Host, FALSE);
 }
 
-STATIC VOID SdhciReset(IN SDHCI_HOST *Host, IN UINT8 Mask) {
+STATIC
+VOID
+SdhciReset (
+  IN SDHCI_HOST *Host,
+  IN UINT8      Mask
+  )
+{
   UINT32 Timeout;
   UINT32 Ier = 0;
 
+  // Si hay quirks que dicen "no reset si no hay tarjeta"
   if (Host->Quirks & SDHCI_QUIRK_NO_CARD_NO_RESET) {
     if (!(SdhciReadl(Host, SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT)) {
       return;
     }
   }
 
+  // Guardar IRQs si es necesario
   if (Host->Quirks & SDHCI_QUIRK_RESTORE_IRQS_AFTER_RESET) {
     Ier = SdhciReadl(Host, SDHCI_INT_ENABLE);
   }
@@ -202,25 +228,23 @@ STATIC VOID SdhciReset(IN SDHCI_HOST *Host, IN UINT8 Mask) {
     Host->Ops->PlatformResetEnter(Host, Mask);
   }
 
-  SdhciWriteb(Host, Mask | 0x08, SDHCI_SOFTWARE_RESET);
+  // Escribir solo el Mask, no "| 0x08"
+  SdhciWriteb(Host, Mask, SDHCI_SOFTWARE_RESET);
 
   if (Mask & SDHCI_RESET_ALL) {
     Host->clock = 0;
   }
 
-  /* Esperar un máximo de 100 ms */
+  // Esperar un máximo de 100ms (100 * 1ms)
   Timeout = 100;
-
-  /* El hardware limpia el bit cuando termina */
   while (SdhciReadb(Host, SDHCI_SOFTWARE_RESET) & Mask) {
     if (Timeout == 0) {
-      DEBUG((EFI_D_ERROR, "%a: Reset 0x%x never completed.\n",
-             MmcHostname(Host->Mmc), (INT32)Mask));
+      DEBUG((EFI_D_ERROR, "[SprdSdhciDxe]: Reset 0x%x never completed.\n", Mask));
       SdhciDumpRegs(Host);
       return;
     }
     Timeout--;
-    gBS->Stall(1000); // Pausa de 1 ms
+    gBS->Stall(1000); // 1 ms
   }
 
   if (Host->Ops->PlatformResetExit) {
@@ -236,6 +260,21 @@ STATIC VOID SdhciReset(IN SDHCI_HOST *Host, IN UINT8 Mask) {
       Host->Ops->EnableDma(Host);
     }
   }
+}
+
+EFI_STATUS
+EFIAPI
+SprdBlockIoReset(
+  IN EFI_BLOCK_IO_PROTOCOL  *This,
+  IN BOOLEAN                 ExtendedVerification
+  )
+{
+  SDHCI_HOST *Host = (SDHCI_HOST *)This->Media->IoAlign; // o donde guardes el puntero a tu host
+
+  // Llama a tu reset real
+  SdhciReset(Host, 0x01); // o el mask que necesites
+
+  return EFI_SUCCESS;
 }
 
 STATIC VOID sdhci_set_ios(struct MMC_HOST *mmc, struct mmc_ios *ios);
@@ -286,15 +325,14 @@ STATIC VOID SdhciDeactivateLed(IN SDHCI_HOST *Host)
 // Core functions
 
 STATIC
-VOID
+EFI_STATUS
 SdhciReadBlockPio (IN SDHCI_HOST *Host)
 {
-	unsigned long Flags;
-	UINTN Blksize, Len, Chunk;
+	UINTN Blksize, Chunk;
 	UINT32 Scratch;
 	UINT8 *Buf;
 	
-	DEBUG((EFI_D_INFO, "SprdSdhciDxe: PIO reading\n"));
+	DEBUG((EFI_D_INFO, "SprdMmcDxe: PIO reading\n"));
 	
 	Blksize = Host->Data->Blksz;
 	Chunk = 0;
@@ -310,18 +348,35 @@ SdhciReadBlockPio (IN SDHCI_HOST *Host)
 		Chunk--;
 		Blksize--;
 	}
+
+	return EFI_SUCCESS;
+}
+
+EFI_STATUS
+EFIAPI
+SprdBlockIoReadBlocks(
+  IN EFI_BLOCK_IO_PROTOCOL  *This,
+  IN UINT32                 MediaId,
+  IN EFI_LBA                Lba,
+  IN UINTN                  BufferSize,
+  OUT VOID                  *Buffer
+)
+{
+    SDHCI_HOST *Host = (SDHCI_HOST *)This->Media->IoAlign;
+
+    return SdhciReadBlockPio(Host);
 }
 
 STATIC
-VOID
+EFI_STATUS
 SdhciWriteBlockPio (IN SDHCI_HOST *Host)
 {
 	unsigned long Flags;
-	UINTN Blksize, Len, Chunk;
+	UINTN Blksize, Chunk;
 	UINT32 Scratch;
 	UINT8 *Buf;
 	
-	DEBUG((EFI_D_INFO, "SprdSdhciDxe: PIO writing\n"));
+	DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: PIO writing\n"));
 
 	Blksize = Host->Data->Blksz;
 	Chunk = 0;
@@ -338,6 +393,54 @@ SdhciWriteBlockPio (IN SDHCI_HOST *Host)
 			Scratch = 0;
 		}
 	}
+
+	return EFI_SUCCESS;
+}
+
+EFI_STATUS
+EFIAPI
+SprdBlockIoWriteBlocks (
+    IN EFI_BLOCK_IO_PROTOCOL  *This,
+    IN UINT32                 MediaId,
+    IN EFI_LBA                Lba,
+    IN UINTN                  BufferSize,
+    IN VOID                   *Buffer
+    )
+{
+    SDHCI_HOST *Host;
+    UINTN BlockSize;
+    UINTN NumBlocks;
+
+    if (This == NULL || Buffer == NULL) {
+        return EFI_INVALID_PARAMETER;
+    }
+
+    Host = (SDHCI_HOST *) This->Media->IoAlign; // O donde guardaste el puntero al host
+    BlockSize = This->Media->BlockSize;
+
+    // Validar tamaño
+    if (BufferSize % BlockSize != 0) {
+        return EFI_BAD_BUFFER_SIZE;
+    }
+
+    NumBlocks = BufferSize / BlockSize;
+
+    // Validar que no pase del tamaño del disco
+    if ((Lba + NumBlocks) > This->Media->LastBlock) {
+        return EFI_INVALID_PARAMETER;
+    }
+
+    // Llamada a tu implementación de bajo nivel
+    for (UINTN i = 0; i < NumBlocks; i++) {
+        EFI_STATUS Status = SdhciWriteBlockPio(
+                                Host
+                            );
+        if (EFI_ERROR(Status)) {
+            return Status;
+        }
+    }
+
+    return EFI_SUCCESS;
 }
 
 STATIC
@@ -377,7 +480,7 @@ SdhciTransferPio (IN SDHCI_HOST *Host)
 			break;
 	}
 
-	DEBUG((EFI_D_INFO, "SprdSdhciDxe: PIO transfer complete.\n"));
+	DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: PIO transfer complete.\n"));
 }
 
 STATIC
@@ -430,7 +533,7 @@ SdhciCalcTimeout (IN SDHCI_HOST *Host, IN MMC_COMMAND *Cmd)
 	}
 	
 	if (Count >= 0xF) {
-		DEBUG((EFI_D_WARN, "%s: Too large timeout 0x%x requested for CMD%d!\n",
+		DEBUG((EFI_D_WARN, "[SprdSdhciDxe]: %s: Too large timeout 0x%x requested for CMD%d!\n",
 		    MmcHostname(Host->Mmc), Count, Cmd->Opcode));
 		Count = 0xE;
 	}
@@ -610,7 +713,50 @@ SdhciRequest (
 
 	Host->Mrq = Mrq;
 
-	
+	if (Mrq->Sbc && !(Host->flags & SDHCI_AUTO_CMD23))
+			SdhciSendCmd(Host, Mrq->Sbc);
+		else
+			SdhciSendCmd(Host, Mrq->Cmd);
+}
+
+#define SAMPLE_COUNT	5
+
+STATIC VOID SdhciHwReset(IN MMC_HOST *Mmc)
+{
+	IN SDHCI_HOST *Host = MmcPriv(Mmc);
+
+	if (Host->Ops && Host->Ops->HwReset)
+		Host->Ops->HwReset(Host);
+}
+
+STATIC VOID SdhciEnableSdioIrqNolock(IN SDHCI_HOST *Host, int Enable)
+{
+	if (Host->flags & SDHCI_DEVICE_DEAD)
+		goto out;
+
+	if (Enable)
+		Host->flags |= SDHCI_SDIO_IRQ_ENABLED;
+	else
+		Host->flags &= ~SDHCI_SDIO_IRQ_ENABLED;
+
+	/* SDIO IRQ will be enabled as appropriate in runtime resume */
+	if (Host->RuntimeSuspended)
+		goto out;
+
+	if (Enable)
+		SdhciUnmaskIrqs(Host, SDHCI_INT_CARD_INT);
+	else
+		SdhciMaskIrqs(Host, SDHCI_INT_CARD_INT);
+out:
+	Mmiowb();
+}
+
+STATIC VOID SdhciEnableSdioIrq(IN MMC_HOST *Mmc, int Enable)
+{
+	IN SDHCI_HOST *Host = MmcPriv(Mmc);
+	unsigned long Flags;
+
+	SdhciEnableSdioIrqNolock(Host, Enable);
 }
 
 /**
@@ -638,9 +784,13 @@ SdhciFlushBlocks (
   IN EFI_BLOCK_IO_PROTOCOL  *This
   )
 {
-  DEBUG ((EFI_D_INFO, "SprdSdhciDxe::SdhciFlushBlocks is called\n"));
+  DEBUG ((EFI_D_INFO, "[SprdSdhciDxe]::SdhciFlushBlocks is called\n"));
   return EFI_SUCCESS;
 }
+
+STATIC SDHCI_HOST gHostInstance;
+
+SPRD_SC8830_CLOCK_PROTOCOL_GUID *gSprdClock = NULL;
 
 // EntryPoint for SprdSdhciDxe
 
@@ -657,11 +807,18 @@ SprdSdhciDxeInit (
 	EFI_BLOCK_IO_MEDIA    *BlockIoMedia;
 	SDHCI_DEVICE_PATH	  *gSprdMmcDevicePath;
 	UINT64 Lba;
+	UINT64            CapacityBlocks;
 
-	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Initializing MMC/SD card\n"));
+	DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: Initializing MMC/SD card\n"));
+
+	DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: Locating Spreadtrum Clock Protocol\n"));
+	Status = gBS->LocateProtocol (&gSprdClockProtocolGuid, NULL, (VOID **)&gSprdClock);
+	ASSERT_EFI_ERROR (Status);
 
 	// Get eMMC Address from PCD
-	gSdhciBaseAddr = FixedPcdGet32(PcdSdhciAddressPart1);
+	gSdhciBaseAddr  = FixedPcdGet32(PcdSdhciAddressPart1);
+	gSdhciBaseAddr2 = FixedPcdGet32(PcdSdhciAddressPart2);
+	gSdhciBaseAddr3 = FixedPcdGet32(PcdSdhciAddressPart3);
 
 	SprdBlockIo = AllocateZeroPool(sizeof(EFI_BLOCK_IO_PROTOCOL));
 	if (SprdBlockIo == NULL) {
@@ -674,6 +831,11 @@ SprdSdhciDxeInit (
 		return EFI_OUT_OF_RESOURCES;
 	}
 
+
+	MMC_HOST *Private;
+	Private = AllocateZeroPool(sizeof(MMC_HOST));
+	if (!Private) return EFI_OUT_OF_RESOURCES;
+
 	BlockIoMedia->MediaId = 1;
 	BlockIoMedia->RemovableMedia = FALSE; // or TRUE if SD Card
 	BlockIoMedia->MediaPresent = TRUE;
@@ -685,10 +847,16 @@ SprdSdhciDxeInit (
 
 	SprdBlockIo->Revision = EFI_BLOCK_IO_PROTOCOL_REVISION;
 	SprdBlockIo->Media = BlockIoMedia;
+	SprdBlockIo->ReadBlocks = SprdBlockIoReadBlocks;   // tu función que implemente ReadBlocks
+	SprdBlockIo->WriteBlocks = SprdBlockIoWriteBlocks; // tu función que implemente WriteBlocks (si soportado)
 	SprdBlockIo->FlushBlocks = SdhciFlushBlocks; // if applies, or NULL
+	SprdBlockIo->Reset = SprdBlockIoReset;       // tu función que implemente Reset
+
+	gSprdMmcDevicePath = (SDHCI_DEVICE_PATH*)AllocateZeroPool(sizeof(SDHCI_DEVICE_PATH));
+	CopyMem(gSprdMmcDevicePath,&SdhciDevicePath,sizeof(SDHCI_DEVICE_PATH));
 
 	// Install BlockIO Protocol
-	DEBUG((EFI_D_INFO, "SprdSdhciDxe: Installing Block IO and Device Path Protocol\n"));
+	DEBUG((EFI_D_INFO, "[SprdSdhciDxe]: Installing Block IO and Device Path Protocol\n"));
 
 	Status = gBS->InstallMultipleProtocolInterfaces (
 				  &Handle, &ImageHandle,

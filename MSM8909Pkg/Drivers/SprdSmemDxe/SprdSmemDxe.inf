@@ -8,7 +8,7 @@
   ENTRY_POINT                    = SprdSmemDxeInitialize
 
 [Sources.common]
-  Driver.c
+  SprdSmemDxe.c
   smem.c
 
 [Packages]
