@@ -50,4 +50,4 @@ some functions from SprdMmcDxe (like SdhciFlushBlocks) are from [Mu-Silicium](ht
 
 DSDT and TimerDxe (disabled for now) are from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
 
-Dominduchami for some changes for 16 Bpp FB in [HtcLeoPkg](https://github.com/HTC-Leo-Revival-Project/HtcLeoPkg) which are not used but i used it.
+Dominduchami for some changes for 16 Bpp FB in [HtcLeoPkg](https://github.com/HTC-Leo-Revival-Project/HtcLeoPkg) which are not used but i used it for fixing framebuffer.
