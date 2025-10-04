@@ -38,22 +38,6 @@ UINTN           gSdhciBaseAddr;
 UINTN           gSdhciBaseAddr2;
 UINTN           gSdhciBaseAddr3;
 
-SDHCI_DEVICE_PATH SdhciDevicePath = {
-  {
-    HARDWARE_DEVICE_PATH,
-    HW_VENDOR_DP,
-    (UINT8)(sizeof(VENDOR_DEVICE_PATH)),
-    (UINT8)((sizeof(VENDOR_DEVICE_PATH)) >> 8),
-    0
-  },
-  {
-    END_DEVICE_PATH_TYPE,
-    END_ENTIRE_DEVICE_PATH_SUBTYPE,
-    sizeof (EFI_DEVICE_PATH_PROTOCOL),
-    0
-  }
-};
-
 EFI_BLOCK_IO_MEDIA gSdMmc0 = {
   SIGNATURE_32('e','m','m','c'),            // MediaId
   FALSE,                                     // RemovableMedia
@@ -80,7 +64,21 @@ EFI_BLOCK_IO_MEDIA gSdMmc2 = {
   0                                         // LastBlock
 };
 
-
+SDHCI_DEVICE_PATH SdhciDevicePath = {
+  {
+    HARDWARE_DEVICE_PATH,
+    HW_VENDOR_DP,
+    (UINT8)(sizeof(VENDOR_DEVICE_PATH)),
+    (UINT8)((sizeof(VENDOR_DEVICE_PATH)) >> 8),
+    0
+  },
+  {
+    END_DEVICE_PATH_TYPE,
+    END_ENTIRE_DEVICE_PATH_SUBTYPE,
+    sizeof (EFI_DEVICE_PATH_PROTOCOL),
+    0
+  }
+};
 
 extern UINT32                     gFileSyStemSize;
 
@@ -819,6 +817,14 @@ SprdSdhciDxeInit (
 	gSdhciBaseAddr  = FixedPcdGet32(PcdSdhciAddressPart1);
 	gSdhciBaseAddr2 = FixedPcdGet32(PcdSdhciAddressPart2);
 	gSdhciBaseAddr3 = FixedPcdGet32(PcdSdhciAddressPart3);
+
+	// Enable SDHCI Power
+	MmioWrite32 (gSdhciBaseAddr  + SDHCI_CLOCK_CARD_EN, POWER_ENABLE);
+	MmioWrite32 (gSdhciBaseAddr2 + SDHCI_CLOCK_CARD_EN, POWER_ENABLE);
+	MmioWrite32 (gSdhciBaseAddr3 + SDHCI_CLOCK_CARD_EN, POWER_ENABLE);
+
+	// Reset SDHCI
+	
 
 	SprdBlockIo = AllocateZeroPool(sizeof(EFI_BLOCK_IO_PROTOCOL));
 	if (SprdBlockIo == NULL) {

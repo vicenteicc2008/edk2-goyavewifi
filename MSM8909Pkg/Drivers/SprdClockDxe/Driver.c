@@ -626,6 +626,8 @@ STATIC VOID __MmRegSetClr(CLK_HW *Hw, VOID *Reg, UINT32 Msk,
 #define __MmRegClr(Hw, Reg, Msk)	__MmRegSetClr(Hw, Reg, Msk, 0)
 #define __SPRD_MM_TIMEOUT		(3 * 1000)
 
+
+
 STATIC UINT32 SavedMmCkg[10];
 
 

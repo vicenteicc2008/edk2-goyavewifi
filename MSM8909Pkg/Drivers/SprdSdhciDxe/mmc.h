@@ -21,7 +21,6 @@
 #include <Protocol/SprdClock.h>
 
 
-#include "ioctl.h"
 
 #define CONFIG_GENERIC_MMC
 
@@ -680,6 +679,17 @@ STATIC inline VOID *MmcPriv(IN MMC_HOST *Host)
 {
 	return (VOID *)Host->Private;
 }
+
+#define  SDHCI_CLOCK_CARD_EN	0x0004
+#define  SDHCI_CLOCK_INT_STABLE	0x0002
+#define  SDHCI_CLOCK_INT_EN		0x0001
+
+//
+//  Power Enable Register
+//
+#define POWER_ENABLE             (0x1)
+
+
 
 #define mdelay(ms) MicroSecondDelay((ms)*1000)
 

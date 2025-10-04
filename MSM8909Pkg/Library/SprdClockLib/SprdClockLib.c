@@ -4,6 +4,7 @@
 #include <Library/TimerLib.h>
 
 #include <SC8830/reg.h>
+#include <Clock/sprd-clock.h>
 
 ClkRegs ClockSdio = {
   .Name      = "CLK_SDIO1",
@@ -31,21 +32,22 @@ ClkRegs ClockEmmc = {
 
 
 
-STATIC struct ClkTable sprd_clocks_8830[] =
+STATIC struct ClkTable SPRD_CLOCKS_8830[] =
 {
-	
+	SPRD_CLK_LOOKUP("CLK_EMMC", ClockEmmc),
+	SPRD_CLK_LOOKUP("CLK_SDIO1", ClockSdio),
 };
 
 EFI_STATUS
 EFIAPI
 SprdClockInitLib (
-  struct clk_lookup **clist,
-  unsigned *num
+  IN ClkLookup **Clist,
+  unsigned *Num
   )
 {
 
-	*clist = sprd_clocks_8830;
-	*num = ARRAY_SIZE(sprd_clocks_8830);
+	*Clist = SPRD_CLOCKS_8830;
+	*Num = ARRAY_SIZE(SPRD_CLOCKS_8830);
 
 	return EFI_SUCCESS;
 }

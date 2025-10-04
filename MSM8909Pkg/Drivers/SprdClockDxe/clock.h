@@ -101,10 +101,6 @@ typedef struct {
 	UINTN	Div;
 } CLK_FIXED_FACTOR;
 
-typedef struct {
-	UINTN CLK_NUM;
-} CLK_ONECELL_DATA;
-
 #define HWSPINLOCK_ID_TOTAL_NUMS	(64)
 #define HWLOCK_ADI	(0)
 #define HWLOCK_GLB	(1)
@@ -150,9 +146,8 @@ typedef struct {
     INTN Data;
 } Mutex;
 
-typedef struct
-{
-	struct list_head Node;
+typedef struct {
+	LIST_ENTRY   Node;
 	CONST CHAR8      DevId;
 	CONST CHAR8      ConId;
 	struct Clk*      Clk;
@@ -218,10 +213,12 @@ struct Clk {
 	CONST CHAR8   *Name;
 };
 
-#define MAX_DIV					(1000)
+typedef struct {
+	struct Clk **Clks;
+	UINTN CLK_NUM;
+} CLK_ONECELL_DATA;
 
-#define spin_lock_irqsave(lock, cpu_sr) do { *(lock)=0; (cpu_sr)=1; } while(0)
-#define spin_unlock_irqrestore(lock, cpu_sr) do { *(lock)=0; (void)(cpu_sr); } while(0)
+#define MAX_DIV					(1000)
 
 typedef struct {
   UINT32 Cpu;
