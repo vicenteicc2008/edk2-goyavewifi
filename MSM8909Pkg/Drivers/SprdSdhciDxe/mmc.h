@@ -689,6 +689,8 @@ STATIC inline VOID *MmcPriv(IN MMC_HOST *Host)
 //
 #define POWER_ENABLE             (0x1)
 
+#define SDHCI_CLOCK_CONTROL	0x2C
+
 
 
 #define mdelay(ms) MicroSecondDelay((ms)*1000)

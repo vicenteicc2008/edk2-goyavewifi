@@ -4,7 +4,7 @@ Attempt to create a minimal EDK2 for Samsung Galaxy Tab E 7.0 WIFI (SM-T113NU) b
 Boots to UEFI Shell but buttons, eMMC and USB are not working.
 
 ## WARNING
-this EDK2 does working only on DEBUG target because if you compile on the RELEASE target you have a bug that causes a data abort exception to appear.
+this EDK2 does working only on DEBUG target for now because if you compile on the RELEASE target you have a bug that causes a data abort exception to appear.
 
 ## Building
 Tested on Ubuntu 22.04.
