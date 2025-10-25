@@ -34,14 +34,6 @@
 
 #define __ffs(x)  LowBitSet32(x)
 
-#if 1
-const UINT32 __clkinit0, __clkinit_begin = 0xeeeebbbb;
-const UINT32 __clkinit2, __clkinit_end   = 0xddddeeee;
-#else
-const UINT32 __clkinit0, __clkinit_begin = &CLK_LK_clk_mpll;
-const UINT32 __clkinit2, __clkinit_end   = &CLK_LK_clk_mpll;
-#endif
-
 STATIC INTN clocks_lock = 0;
 STATIC LIST_HEAD(Clocks);
 STATIC Mutex ClocksMutex;
