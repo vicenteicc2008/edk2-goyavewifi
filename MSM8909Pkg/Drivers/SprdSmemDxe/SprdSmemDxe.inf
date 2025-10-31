@@ -9,7 +9,6 @@
 
 [Sources.common]
   SprdSmemDxe.c
-  smem.c
 
 [Packages]
   MdePkg/MdePkg.dec

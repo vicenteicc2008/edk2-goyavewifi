@@ -268,6 +268,6 @@ TimerInitialize (
     return Status;
   }
 
-  DEBUG ((EFI_D_INFO, "Spreadtrum SC8830 TimerDxe installed (base=0x%08x irq=%u)\n", TIMER_BASE, TIMER_IRQ));
+  DEBUG ((EFI_D_INFO, "Spreadtrum TimerDxe installed (base=0x%08x irq=%u)\n", TIMER_BASE, TIMER_IRQ));
   return EFI_SUCCESS;
 }

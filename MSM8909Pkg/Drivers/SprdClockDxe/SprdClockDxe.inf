@@ -8,7 +8,7 @@
   ENTRY_POINT                    = SprdClockDxeInitialize
 
 [Sources.common]
-  Driver.c
+  SprdClockDxe.c
 
 [Packages]
   MdePkg/MdePkg.dec

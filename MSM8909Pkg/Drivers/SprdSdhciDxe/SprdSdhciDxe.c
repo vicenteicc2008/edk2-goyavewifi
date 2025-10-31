@@ -70,7 +70,7 @@ SDHCI_DEVICE_PATH SdhciDevicePath = {
     HW_VENDOR_DP,
     (UINT8)(sizeof(VENDOR_DEVICE_PATH)),
     (UINT8)((sizeof(VENDOR_DEVICE_PATH)) >> 8),
-    0
+    0xbc4b8f09, 0x88bb, 0x40e9, 0xab, 0x14, 0x8a, 0xc7, 0xeb, 0xc0, 0xf2, 0x36
   },
   {
     END_DEVICE_PATH_TYPE,
@@ -756,6 +756,8 @@ STATIC VOID SdhciEnableSdioIrq(IN MMC_HOST *Mmc, int Enable)
 
 	SdhciEnableSdioIrqNolock(Host, Enable);
 }
+
+
 
 /**
 
