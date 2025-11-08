@@ -825,7 +825,7 @@ SprdSdhciDxeInit (
 	MmioWrite32 (gSdhciBaseAddr2 + SDHCI_CLOCK_CARD_EN, POWER_ENABLE);
 	MmioWrite32 (gSdhciBaseAddr3 + SDHCI_CLOCK_CARD_EN, POWER_ENABLE);
 
-	// Enable SDHCI Clocks
+	// Enable SDHCI Clock Control
 	MmioWrite32 (gSdhciBaseAddr  + 0, SDHCI_CLOCK_CONTROL);
 	MmioWrite32 (gSdhciBaseAddr2 + 0, SDHCI_CLOCK_CONTROL);
 	MmioWrite32 (gSdhciBaseAddr3 + 0, SDHCI_CLOCK_CONTROL);

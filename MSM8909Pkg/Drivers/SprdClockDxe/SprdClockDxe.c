@@ -629,6 +629,8 @@ EFI_STATUS
 SciClockInit(VOID)
 {
   // Register all clocks sources
+  DEBUG((EFI_D_INFO, "[SprdClockDxe]: Registering Clocks\n"));
+  
 
   // Optional Debug message
   DEBUG((EFI_D_INFO, "[SprdClockDxe]: Clock init complete\n"));
