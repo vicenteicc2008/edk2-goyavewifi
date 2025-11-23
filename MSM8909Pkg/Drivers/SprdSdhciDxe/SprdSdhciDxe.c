@@ -275,7 +275,7 @@ SprdBlockIoReset(
   return EFI_SUCCESS;
 }
 
-STATIC VOID sdhci_set_ios(struct MMC_HOST *mmc, struct mmc_ios *ios);
+STATIC VOID SdhciSetIos(IN MMC_HOST *Mmc, struct mmc_ios *ios);
 
 STATIC
 VOID
@@ -717,8 +717,6 @@ SdhciRequest (
 			SdhciSendCmd(Host, Mrq->Cmd);
 }
 
-#define SAMPLE_COUNT	5
-
 STATIC VOID SdhciHwReset(IN MMC_HOST *Mmc)
 {
 	IN SDHCI_HOST *Host = MmcPriv(Mmc);
@@ -755,6 +753,42 @@ STATIC VOID SdhciEnableSdioIrq(IN MMC_HOST *Mmc, int Enable)
 	unsigned long Flags;
 
 	SdhciEnableSdioIrqNolock(Host, Enable);
+}
+
+STATIC INTN SdhciDoGetCd(IN SDHCI_HOST *Host)
+{
+	if (Host->flags & SDHCI_DEVICE_DEAD)
+		return 0;
+
+	if ((Host->Quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
+	    (Host->Mmc->Caps & MMC_CAP_NONREMOVABLE))
+		return 1;
+
+	return !!(SdhciReadl(Host, SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT);
+}
+
+STATIC INTN SdhciGetCd(IN MMC_HOST *Mmc)
+{
+	SDHCI_HOST *Host = MmcPriv(Mmc);
+	INTN Ret;
+	
+	Ret = SdhciDoGetCd(Host);
+
+	return Ret;
+}
+
+
+
+#define SAMPLE_COUNT	5
+
+STATIC INTN SdhciCardBusy(IN MMC_HOST *Mmc)
+{
+	SDHCI_HOST *Host = MmcPriv(Mmc);
+	UINT32 PresentState;
+
+	PresentState = SdhciReadl(Host, SDHCI_PRESENT_STATE);
+	
+	return !(PresentState & SDHCI_DATA_LVL_MASK);
 }
 
 
@@ -860,10 +894,10 @@ SprdSdhciDxeInit (
 
 	SprdBlockIo->Revision = EFI_BLOCK_IO_PROTOCOL_REVISION;
 	SprdBlockIo->Media = BlockIoMedia;
-	SprdBlockIo->ReadBlocks = SprdBlockIoReadBlocks;   // tu función que implemente ReadBlocks
-	SprdBlockIo->WriteBlocks = SprdBlockIoWriteBlocks; // tu función que implemente WriteBlocks (si soportado)
+	SprdBlockIo->ReadBlocks = SprdBlockIoReadBlocks;
+	SprdBlockIo->WriteBlocks = SprdBlockIoWriteBlocks;
 	SprdBlockIo->FlushBlocks = SdhciFlushBlocks; // if applies, or NULL
-	SprdBlockIo->Reset = SprdBlockIoReset;       // tu función que implemente Reset
+	SprdBlockIo->Reset = SprdBlockIoReset;
 
 	gSprdMmcDevicePath = (SDHCI_DEVICE_PATH*)AllocateZeroPool(sizeof(SDHCI_DEVICE_PATH));
 	CopyMem(gSprdMmcDevicePath,&SdhciDevicePath,sizeof(SDHCI_DEVICE_PATH));

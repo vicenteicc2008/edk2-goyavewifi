@@ -43,6 +43,10 @@
   gMSM8909PkgTokenSpaceGuid.PcdSdhciAddressPart2
   gMSM8909PkgTokenSpaceGuid.PcdSdhciAddressPart3
 
+[FixedPcd.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
+  
 [BuildOptions.ARM]
   GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-overflow -Wno-unused-variable -Wno-unused-function -Wno-missing-braces
 
