@@ -826,6 +826,8 @@ STATIC SDHCI_HOST gHostInstance;
 
 SPRD_SC8830_CLOCK_PROTOCOL_GUID *gSprdClock = NULL;
 
+
+
 // EntryPoint for SprdSdhciDxe
 
 EFI_STATUS
