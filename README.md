@@ -51,6 +51,6 @@ some drivers like SprdClockDxe (WIP), SprdSdhciDxe (not working for now) and Spr
 
 some functions from SprdSdhciDxe (like SdhciFlushBlocks) are from [Mu-Silicium](https://github.com/Project-Silicium/Mu-Silicium)
 
-ACPI Tables and TimerDxe (disabled for now) are from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
+ACPI Tables are from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
 
 Dominduchami for some changes for 16 Bpp FB in [HtcLeoPkg](https://github.com/HTC-Leo-Revival-Project/HtcLeoPkg) which are not used but i used it for fixing framebuffer.
