@@ -1,0 +1,107 @@
+#/** @file
+#
+#  (C) Copyright 2015 Hewlett-Packard Development Company, L.P.<BR>
+#  Copyright (c) 2011-2017, ARM Ltd. All rights reserved.<BR>
+#  Copyright (c) 2020, Arm Limited. All rights reserved.<BR>
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PrePi
+  FILE_GUID                      = 3e401783-cc94-4fcd-97bc-bd35ac369d2f
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+
+[Sources]
+  Pi.h
+  Pi.c
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Werror -Wno-error=unused-function
+
+[Sources.ARM]
+  ReleaseInfo.S | GCC
+  ModuleEntryPoint.S | GCC
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  BaseLib
+  CacheMaintenanceLib
+  DebugLib
+  DebugAgentLib
+  ArmLib
+  IoLib
+  TimerLib
+  SerialPortLib
+  ExtractGuidedSectionLib
+  LzmaDecompressLib
+  DebugAgentLib
+  PrePiLib
+  ArmPlatformLib
+  ArmPlatformStackLib
+  MemoryAllocationLib
+  HobLib
+  PrePiHobListPointerLib
+  PlatformPeiLib
+  MemoryInitPeiLib
+
+[Ppis]
+  gArmMpCoreInfoPpiGuid
+
+[Guids]
+  gArmMpCoreInfoGuid
+  gEfiFirmwarePerformanceGuid
+
+[FeaturePcd]
+  gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
+
+[FixedPcd]
+  gArmTokenSpaceGuid.PcdVFPEnabled
+
+  gArmTokenSpaceGuid.PcdFdBaseAddress
+  gArmTokenSpaceGuid.PcdFdSize
+
+  gArmTokenSpaceGuid.PcdFvBaseAddress
+  gArmTokenSpaceGuid.PcdFvSize
+
+  gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize
+
+  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize
+
+  gArmPlatformTokenSpaceGuid.PcdCoreCount
+  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress
+
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize
+
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIReclaimMemory
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIMemoryNVS
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiReservedMemoryType
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesData
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesCode
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesCode
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesData
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderCode
+  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderData
+
+  gEmbeddedTokenSpaceGuid.PcdPrePiStackBase
+  gEmbeddedTokenSpaceGuid.PcdPrePiStackSize
+  gSC8830PkgTokenSpaceGuid.PcdUefiMemPoolBase
+  gSC8830PkgTokenSpaceGuid.PcdUefiMemPoolSize
+  gSC8830PkgTokenSpaceGuid.PcdMipiFrameBufferAddress
+
+[Pcd]
+  gArmTokenSpaceGuid.PcdSystemMemoryBase
+  gArmTokenSpaceGuid.PcdSystemMemorySize

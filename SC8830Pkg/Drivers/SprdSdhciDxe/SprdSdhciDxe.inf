@@ -1,0 +1,54 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdSdhciDxe
+  FILE_GUID                      = 6E54BE28-06D7-49D0-9B36-CAD972587F7F
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SprdSdhciDxeInit
+
+[Sources.common]
+  SprdSdhciDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  ArmPkg/ArmPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  DebugLib
+  ArmLib
+  BaseLib
+  UefiDriverEntryPoint
+  TimerLib
+  IoLib
+  BaseMemoryLib
+
+[Protocols]
+  gEfiDiskIoProtocolGuid                        ## CONSUMES
+  gEfiBlockIoProtocolGuid                       ## PRODUCES
+  gEfiDevicePathProtocolGuid                    ## PRODUCES
+  gEfiDriverDiagnostics2ProtocolGuid            ## SOMETIMES_PRODUCES
+  gSprdClockProtocolGuid
+  gSprdMmcProtocolGuid
+
+[Guids]
+  gSdhci0DevicePathGuid
+  gSdhci1DevicePathGuid
+  gSdhci2DevicePathGuid
+
+[Pcd]
+  gSC8830PkgTokenSpaceGuid.PcdSdhciAddressPart1
+  gSC8830PkgTokenSpaceGuid.PcdSdhciAddressPart2
+  gSC8830PkgTokenSpaceGuid.PcdSdhciAddressPart3
+
+[FixedPcd.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
+  
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-overflow -Wno-unused-variable -Wno-unused-function -Wno-missing-braces
+
+[Depex]
+  TRUE

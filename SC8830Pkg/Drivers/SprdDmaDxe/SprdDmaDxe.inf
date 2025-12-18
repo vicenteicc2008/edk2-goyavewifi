@@ -1,0 +1,41 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdDmaDxe
+  FILE_GUID                      = A3A5CCBF-2F36-4213-A404-56DB3A20194C
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SprdDmaDxeInitialize
+
+[Sources.common]
+  SprdDmaDxe.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  PcdLib
+  UefiLib
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  BaseMemoryLib
+  IoLib
+  ArmLib
+  BaseLib
+  DebugLib
+  UefiBootServicesTableLib
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-unused-variable -Wno-unused-function
+
+[Guids]
+
+[Protocols]
+  gSprdDmaProtocolGuid
+
+[depex]
+ TRUE

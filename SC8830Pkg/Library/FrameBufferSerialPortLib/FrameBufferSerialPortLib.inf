@@ -1,0 +1,30 @@
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = FrameBufferSerialPortLib
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS  = SerialPortLib
+
+[Sources.common]
+  FrameBufferSerialPortLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  ArmLib
+  PcdLib
+  IoLib
+  HobLib
+  CompilerIntrinsicsLib
+  CacheMaintenanceLib
+
+[Pcd]
+  gSC8830PkgTokenSpaceGuid.PcdMipiFrameBufferAddress
+  gSC8830PkgTokenSpaceGuid.PcdMipiFrameBufferWidth
+  gSC8830PkgTokenSpaceGuid.PcdMipiFrameBufferHeight
+  gSC8830PkgTokenSpaceGuid.PcdMipiFrameBufferPixelBpp
+  gSC8830PkgTokenSpaceGuid.PcdMipiFrameBufferVisibleWidth
+  gSC8830PkgTokenSpaceGuid.PcdMipiFrameBufferVisibleHeight

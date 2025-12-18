@@ -1,0 +1,41 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdClockDxe
+  FILE_GUID                      = 733F4609-F203-46B8-A486-AB8ABECF2FCF
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = SprdClockDxeInitialize
+
+[Sources.common]
+  SprdClockDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  ArmLib
+  BaseLib
+  DebugLib
+  MemoryAllocationLib
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  CacheMaintenanceLib
+  DxeServicesTableLib
+  IoLib
+  TimerLib
+  SynchronizationLib
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-unused-variable -Wno-unused-function -Wno-overflow
+
+[Guids]
+
+[Protocols]
+  gEfiCpuArchProtocolGuid
+  gSprdClockProtocolGuid
+
+[depex]
+ TRUE

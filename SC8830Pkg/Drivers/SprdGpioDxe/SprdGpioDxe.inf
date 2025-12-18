@@ -1,0 +1,42 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdGpioDxe
+  FILE_GUID                      = FC315237-23BF-484D-9E65-931A2EF9AE72
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SprdGpioDxeInitialize
+
+[Sources.common]
+  SprdGpioDxe.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  PcdLib
+  UefiLib
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  BaseMemoryLib
+  IoLib
+  ArmLib
+  BaseLib
+  DebugLib
+  UefiBootServicesTableLib
+
+[Guids]
+
+[Protocols]
+  gHardwareInterruptProtocolGuid
+  gSprdGpioProtocolGuid
+
+[Pcd]
+  gSC8830PkgTokenSpaceGuid.GpioBase
+
+[depex]
+ TRUE

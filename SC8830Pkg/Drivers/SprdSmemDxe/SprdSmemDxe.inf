@@ -1,0 +1,33 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdSmemDxe
+  FILE_GUID                      = F8E7B933-C4D8-4377-A09E-F0A1D4018F5A
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = SprdSmemDxeInitialize
+
+[Sources.common]
+  SprdSmemDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  ArmLib
+  BaseLib
+  DebugLib
+  MemoryAllocationLib
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  CacheMaintenanceLib
+  DxeServicesTableLib
+  IoLib
+
+[Protocols]
+  gSprdSmemProtocolGuid
+
+[Depex]
+  TRUE
