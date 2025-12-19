@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, DODO vi-C <vicenteicc2008@gmail.com>
+ * Copyright (C) 2024-2025 viZPilot.
  * Based on the open source driver from edk2-exynos9830 by halal-beef, the key reading code from the uniLoader fork by BotchedRPR and GPIO code from linux kernel by Thunderoar
  */
 
