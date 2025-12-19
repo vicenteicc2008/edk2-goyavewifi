@@ -43,6 +43,8 @@ or use one of my releases in github (flash it with TWRP)
 
 SimpleFbDxe screen driver is from imbushuo's [Lumia950XLPkg](https://github.com/WOA-Project/Lumia950XLPkg).
 
+BootLogo is from rickliu2000's [Lumia930Pkg](https://github.com/rickliu2000/Lumia930Pkg).
+
 Based on sonic011gamer [edk2-msm8909](https://github.com/sonic011gamer/edk2-msm8909).
 
 SprdGpioDxe driver is from halal-beef's [edk2-exynos9830](https://github.com/halal-beef/edk2-exynos9830).
