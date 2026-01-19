@@ -56,3 +56,6 @@ some functions from SprdSdhciDxe (like SdhciFlushBlocks) are from [Mu-Silicium](
 ACPI Tables are from AistopGit's [edk2-exynos5410](https://github.com/AistopGit/edk2-exynos5410).
 
 Dominduchami for some changes for 16 Bpp FB in [HtcLeoPkg](https://github.com/HTC-Leo-Revival-Project/HtcLeoPkg) which are not used but i used it for fixing framebuffer.
+
+RadGoodNow for SprdEmmcDxe (Although it's not public, I made some adjustments for goyavewifi, but the timer is still broken.)
+
