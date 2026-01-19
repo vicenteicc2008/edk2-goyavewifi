@@ -91,4 +91,3 @@ static ARM_MEMORY_REGION_DESCRIPTOR_EX gDeviceMemoryDescriptorEx[] = {
 };
 
 #endif
-

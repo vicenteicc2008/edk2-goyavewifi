@@ -113,7 +113,7 @@
 [PcdsFixedAtBuild.common]
   gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|4
 
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Some Random Trap Artist which likes Anuel AA in Chile"
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Some Random Trap Artist which likes Bad Bunny and Anuel AA"
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"1.0-rc2"
 
   # Memory protection
@@ -136,6 +136,7 @@
 
   # Timers
   gEmbeddedTokenSpaceGuid.PcdTimerPeriod|100000
+  gEmbeddedTokenSpaceGuid.PcdEmbeddedPerformanceCounterPeriodInNanoseconds|26
 
   # GUID of the UI app
   gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerMenuFile|{ 0x21, 0xaa, 0x2c, 0x46, 0x14, 0x76, 0x03, 0x45, 0x83, 0x6e, 0x8a, 0xb6, 0xf4, 0x66, 0x23, 0x31 }
@@ -280,7 +281,7 @@
   MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
-  SC8830Pkg/Drivers/SprdSdhciDxe/SprdSdhciDxe.inf
+  SC8830Pkg/Drivers/SprdEmmcDxe/SprdEmmcDxe.inf
   MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
   FatPkg/EnhancedFatDxe/Fat.inf
 

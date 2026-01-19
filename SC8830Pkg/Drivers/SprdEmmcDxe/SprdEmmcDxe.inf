@@ -1,0 +1,41 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SprdEmmcDxe
+  FILE_GUID                      = dfbeb291-a8a7-4e38-9b26-f001e78aba79
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MMCHSInitialize
+
+
+[Sources.common]
+  sprd_sdhci.c
+  sprd_mmc.c
+  SprdEmmcDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  SC8830Pkg/SC8830Pkg.dec
+
+[LibraryClasses]
+  UefiLib
+  UefiDriverEntryPoint
+  ArmLib
+  IoLib
+  TimerLib
+  CacheMaintenanceLib
+
+[BuildOptions.ARM]
+  GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-unused-function -Wno-unused-variable -Wno-int-to-pointer-cast
+
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiDevicePathProtocolGuid
+
+[Guids]
+  gEfiEventVirtualAddressChangeGuid
+  gEfiEventExitBootServicesGuid
+
+[Depex]              
+  TRUE

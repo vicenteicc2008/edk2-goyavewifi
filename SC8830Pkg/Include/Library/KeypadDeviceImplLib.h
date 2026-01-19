@@ -1,9 +1,27 @@
-#ifndef __LIBRARY_KEYPAD_DEVICE_IMPL_H__
-#define __LIBRARY_KEYPAD_DEVICE_IMPL_H__
+#ifndef KEYPAD_DEVICE_IMPL_LIB_H_
+#define KEYPAD_DEVICE_IMPL_LIB_H_
 
+#include <PiDxe.h>
 #include <Protocol/KeypadDevice.h>
+#include <Library/KeypadDeviceHelperLib.h>
 
-EFI_STATUS EFIAPI KeypadDeviceImplReset (KEYPAD_DEVICE_PROTOCOL *This);
-EFI_STATUS KeypadDeviceImplGetKeys (KEYPAD_DEVICE_PROTOCOL *This, KEYPAD_RETURN_API *KeypadReturnApi, UINT64 Delta);
+RETURN_STATUS
+EFIAPI
+KeypadDeviceImplConstructor (
+    VOID
+    );
 
-#endif
+EFI_STATUS
+EFIAPI
+KeypadDeviceImplReset (
+    IN KEYPAD_DEVICE_PROTOCOL *This
+    );
+
+EFI_STATUS
+KeypadDeviceImplGetKeys (
+    IN KEYPAD_DEVICE_PROTOCOL *This,
+    IN KEYPAD_RETURN_API      *KeypadReturnApi,
+    IN UINT64                  Delta
+    );
+
+#endif // KEYPAD_DEVICE_IMPL_LIB_H_
